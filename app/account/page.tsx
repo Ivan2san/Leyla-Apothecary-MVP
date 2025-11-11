@@ -7,6 +7,11 @@ import Link from "next/link"
 import { Package, User as UserIcon, LogOut } from "lucide-react"
 import { signOut } from "@/lib/auth/actions"
 
+async function handleSignOut() {
+  "use server"
+  await signOut()
+}
+
 async function getOrders(userId: string) {
   const supabase = await createClient()
 
@@ -41,7 +46,7 @@ export default async function AccountPage() {
               Manage your account and view your order history
             </p>
           </div>
-          <form action={signOut}>
+          <form action={handleSignOut}>
             <Button variant="outline" type="submit">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
