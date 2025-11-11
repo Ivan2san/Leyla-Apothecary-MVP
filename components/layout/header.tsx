@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { User, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CartDrawer } from "@/components/cart/cart-drawer"
+import { AuthNav } from "@/components/layout/auth-nav"
 import { useState } from "react"
 
 export function Header() {
@@ -52,13 +53,8 @@ export function Header() {
           {/* Cart */}
           <CartDrawer />
 
-          {/* Account */}
-          <Link href="/account">
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
-            </Button>
-          </Link>
+          {/* Account / Auth */}
+          <AuthNav />
 
           {/* Mobile menu button */}
           <Button
