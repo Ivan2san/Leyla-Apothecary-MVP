@@ -78,7 +78,7 @@ export class ProductService {
 
     if (error) throw error
 
-    const categories = [...new Set(data.map(p => p.category))]
+    const categories = Array.from(new Set(data.map(p => p.category)))
     return categories as ProductCategory[]
   }
 

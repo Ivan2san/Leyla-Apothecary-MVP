@@ -37,7 +37,7 @@ async function getCategories() {
     return []
   }
 
-  const categories = [...new Set(data.map(p => p.category))]
+  const categories = Array.from(new Set(data.map(p => p.category)))
   return categories
 }
 
