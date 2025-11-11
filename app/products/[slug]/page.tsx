@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
 import { Product } from "@/types"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatPrice } from "@/lib/utils"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { AddToCartSection } from "@/components/products/add-to-cart-section"
 
 async function getProduct(slug: string) {
   const supabase = await createClient()
@@ -96,15 +96,7 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Add to Cart */}
-          <div className="flex gap-4">
-            <Button
-              size="lg"
-              className="flex-1"
-              disabled={product.stock_quantity === 0}
-            >
-              {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </Button>
-          </div>
+          <AddToCartSection product={product} />
 
           {/* Benefits */}
           {product.benefits && product.benefits.length > 0 && (

@@ -1,14 +1,28 @@
+"use client"
+
 import Link from "next/link"
 import { Product } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatPrice } from "@/lib/utils"
+import { useCartStore } from "@/lib/store/cart"
+import { ShoppingCart, Check } from "lucide-react"
+import { useState } from "react"
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addItem, getItemQuantity } = useCartStore()
+  const [justAdded, setJustAdded] = useState(false)
+  const itemQuantity = getItemQuantity(product.id)
+
+  const handleAddToCart = () => {
+    addItem(product, 1)
+    setJustAdded(true)
+    setTimeout(() => setJustAdded(false), 2000)
+  }
   return (
     <Card className="flex flex-col h-full hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -68,8 +82,22 @@ export function ProductCard({ product }: ProductCardProps) {
           <Button
             className="flex-1"
             disabled={product.stock_quantity === 0}
+            onClick={handleAddToCart}
           >
-            {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {justAdded ? (
+              <>
+                <Check className="h-4 w-4 mr-2" />
+                Added!
+              </>
+            ) : product.stock_quantity === 0 ? (
+              'Out of Stock'
+            ) : (
+              <>
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
+                {itemQuantity > 0 && ` (${itemQuantity})`}
+              </>
+            )}
           </Button>
         </div>
       </CardFooter>
