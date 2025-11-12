@@ -22,7 +22,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+      // Sanitize search input to prevent injection attacks
+      const sanitizedSearch = search
+        .replace(/[%_*()]/g, '') // Remove special filter characters
+        .trim()
+
+      if (sanitizedSearch) {
+        query = query.or(`name.ilike.*${sanitizedSearch}*,description.ilike.*${sanitizedSearch}*`)
+      }
     }
 
     query = query.range(offset, offset + limit - 1)

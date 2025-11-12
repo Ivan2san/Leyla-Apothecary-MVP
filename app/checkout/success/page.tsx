@@ -101,10 +101,10 @@ async function OrderSuccessContent({
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Shipping</span>
                 <span>
-                  {order.shipping_cost === 0 ? (
+                  {order.shipping === 0 ? (
                     <span className="text-green-600">FREE</span>
                   ) : (
-                    formatPrice(order.shipping_cost)
+                    formatPrice(order.shipping)
                   )}
                 </span>
               </div>
@@ -114,7 +114,7 @@ async function OrderSuccessContent({
               </div>
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Total</span>
-                <span>{formatPrice(order.total_amount)}</span>
+                <span>{formatPrice(order.total)}</span>
               </div>
             </div>
           </CardContent>

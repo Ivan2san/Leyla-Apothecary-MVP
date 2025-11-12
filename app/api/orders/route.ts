@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { OrderService, CreateOrderData } from '@/lib/services/orders'
+import { createOrderSchema } from '@/lib/validations/orders'
+import { ZodError } from 'zod'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,37 +20,39 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // Validate required fields
-    if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
-      return NextResponse.json(
-        { error: 'Invalid order items' },
-        { status: 400 }
-      )
-    }
-
-    if (!body.shippingAddress) {
-      return NextResponse.json(
-        { error: 'Shipping address is required' },
-        { status: 400 }
-      )
-    }
+    // Validate request body with Zod
+    const validatedData = createOrderSchema.parse(body)
 
     // Create order data
     const orderData: CreateOrderData = {
       userId: user.id,
-      items: body.items,
-      shippingAddress: body.shippingAddress,
-      subtotal: body.subtotal,
-      shippingCost: body.shippingCost,
-      tax: body.tax,
-      totalAmount: body.totalAmount,
+      items: validatedData.items,
+      shippingAddress: validatedData.shippingAddress,
+      subtotal: validatedData.subtotal,
+      shippingCost: validatedData.shippingCost,
+      tax: validatedData.tax,
+      totalAmount: validatedData.totalAmount,
     }
 
-    // Create the order
+    // Create the order (with server-side price validation and stock management)
     const order = await OrderService.createOrder(orderData)
 
     return NextResponse.json({ order }, { status: 201 })
   } catch (error: any) {
+    // Handle Zod validation errors
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: error.errors.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 }
+      )
+    }
+
     console.error('Order creation error:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to create order' },

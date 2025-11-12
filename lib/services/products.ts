@@ -21,7 +21,15 @@ export class ProductService {
     }
 
     if (filters?.search) {
-      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+      // Sanitize search input to prevent SQL injection
+      // Escape special characters that could break the PostgREST filter syntax
+      const sanitizedSearch = filters.search
+        .replace(/[%_*()]/g, '') // Remove special filter characters
+        .trim()
+
+      if (sanitizedSearch) {
+        query = query.or(`name.ilike.*${sanitizedSearch}*,description.ilike.*${sanitizedSearch}*`)
+      }
     }
 
     if (filters?.limit) {
