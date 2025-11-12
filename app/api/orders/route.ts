@@ -4,6 +4,9 @@ import { OrderService, CreateOrderData } from '@/lib/services/orders'
 import { createOrderSchema } from '@/lib/validations/orders'
 import { ZodError } from 'zod'
 
+// Force dynamic rendering since we use Supabase (cookies)
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
