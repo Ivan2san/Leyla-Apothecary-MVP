@@ -11,11 +11,11 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-sage/20 bg-warm-white/95 backdrop-blur supports-[backdrop-filter]:bg-warm-white/60">
       <div className="container flex h-16 items-center">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <span className="font-bold text-xl bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
+          <span className="font-lora font-bold text-xl bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
             Leyla&apos;s Apothecary
           </span>
         </Link>
@@ -24,25 +24,25 @@ export function Header() {
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium flex-1">
           <Link
             href="/products"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="transition-colors hover:text-forest text-forest/70"
           >
             Products
           </Link>
           <Link
             href="/booking"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="transition-colors hover:text-forest text-forest/70"
           >
             Book Consultation
           </Link>
           <Link
             href="/compounds"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="transition-colors hover:text-forest text-forest/70"
           >
             Custom Compounds
           </Link>
           <Link
             href="/about"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
+            className="transition-colors hover:text-forest text-forest/70"
           >
             About
           </Link>
@@ -75,28 +75,28 @@ export function Header() {
           <nav className="flex flex-col space-y-3 p-4">
             <Link
               href="/products"
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-forest/70 hover:text-forest transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Products
             </Link>
             <Link
               href="/booking"
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-forest/70 hover:text-forest transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Book Consultation
             </Link>
             <Link
               href="/compounds"
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-forest/70 hover:text-forest transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Custom Compounds
             </Link>
             <Link
               href="/about"
-              className="text-foreground/60 hover:text-foreground transition-colors"
+              className="text-forest/70 hover:text-forest transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               About

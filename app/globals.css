@@ -4,25 +4,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Brand color mappings - warm-white (#FDFBF8) as background */
+    --background: 36 56% 98%;
+    --foreground: 143 25% 24%; /* forest for text */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 143 25% 24%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 142 76% 36%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --popover-foreground: 143 25% 24%;
+    --primary: 143 25% 24%; /* forest */
+    --primary-foreground: 36 56% 98%; /* warm-white */
+    --secondary: 60 21% 60%; /* sage */
+    --secondary-foreground: 143 25% 24%;
+    --muted: 60 21% 90%;
+    --muted-foreground: 143 25% 50%;
+    --accent: 30 64% 57%; /* terracotta */
+    --accent-foreground: 36 56% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 76% 36%;
+    --border: 60 21% 85%; /* sage tint */
+    --input: 60 21% 90%;
+    --ring: 30 64% 57%; /* terracotta */
     --radius: 0.5rem;
   }
 
