@@ -124,7 +124,7 @@ export function ProductReviewsSection({ productId, initialReviews = [] }: Produc
       const response = await fetch(`/api/reviews/${reviewId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isHelpful }),
+        body: JSON.stringify({ is_helpful: isHelpful }),
       })
 
       if (!response.ok) throw new Error('Failed to vote')
