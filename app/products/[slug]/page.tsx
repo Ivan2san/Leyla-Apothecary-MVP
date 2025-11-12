@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { AddToCartSection } from "@/components/products/add-to-cart-section"
+import { ProductReviewsSection } from "@/components/products/product-reviews-section"
 
 async function getProduct(slug: string) {
   const supabase = await createClient()
@@ -159,6 +160,11 @@ export default async function ProductDetailPage({
             </Card>
           )}
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-16">
+        <ProductReviewsSection productId={product.id} />
       </div>
     </div>
   )
