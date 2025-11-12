@@ -8,6 +8,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
   SheetFooter,
 } from "@/components/ui/sheet"
@@ -36,6 +37,9 @@ export function CartDrawer() {
       <SheetContent className="flex flex-col w-full sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Shopping Cart ({totalItems} items)</SheetTitle>
+          <SheetDescription>
+            Review your items and proceed to checkout
+          </SheetDescription>
         </SheetHeader>
 
         {/* Cart Items */}

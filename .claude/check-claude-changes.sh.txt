@@ -1,0 +1,19 @@
+#!/bin/bash
+# Run after Claude Code makes changes
+
+echo "🔍 Checking Claude's changes..."
+
+# Check if forbidden files were modified
+git diff --name-only | while read file; do
+  if grep -q "$file" .claude/FORBIDDEN_CHANGES.md; then
+    echo "⚠️ WARNING: Forbidden file modified: $file"
+  fi
+done
+
+# Run critical tests
+npm run test:critical
+
+# Check build
+npm run build
+
+echo "✅ Review complete!"

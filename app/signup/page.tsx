@@ -10,43 +10,46 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { signUp } from "@/lib/auth/actions"
 import { Loader2 } from "lucide-react"
 
-export default function SignUpPage() {
+export default function SignupPage() {
   const router = useRouter()
-  const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  })
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+
     setLoading(true)
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
-    }
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setLoading(false)
-      return
-    }
-
     try {
-      const result = await signUp({ email, password, fullName })
+      const result = await signUp({
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+      })
+
       if (result?.error) {
         setError(result.error)
       } else {
-        setSuccess(true)
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
+        // Success - redirect to account page
+        router.push("/account")
       }
     } catch (err) {
       setError("An unexpected error occurred")
@@ -72,22 +75,16 @@ export default function SignUpPage() {
               </div>
             )}
 
-            {success && (
-              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded">
-                Account created successfully! Please check your email to verify your account. Redirecting to login...
-              </div>
-            )}
-
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
                 type="text"
-                placeholder="John Doe"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Jane Doe"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 required
-                disabled={loading || success}
+                disabled={loading}
               />
             </div>
 
@@ -97,10 +94,10 @@ export default function SignUpPage() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                disabled={loading || success}
+                disabled={loading}
               />
             </div>
 
@@ -109,13 +106,14 @@ export default function SignUpPage() {
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                disabled={loading || success}
+                disabled={loading}
+                minLength={8}
               />
               <p className="text-xs text-muted-foreground">
-                Must be at least 6 characters
+                Must be at least 8 characters
               </p>
             </div>
 
@@ -124,10 +122,10 @@ export default function SignUpPage() {
               <Input
                 id="confirmPassword"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
-                disabled={loading || success}
+                disabled={loading}
               />
             </div>
           </CardContent>
@@ -136,7 +134,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={loading || success}
+              disabled={loading}
             >
               {loading ? (
                 <>
@@ -144,7 +142,7 @@ export default function SignUpPage() {
                   Creating account...
                 </>
               ) : (
-                "Sign Up"
+                "Create Account"
               )}
             </Button>
 
@@ -156,12 +154,12 @@ export default function SignUpPage() {
             </p>
 
             <p className="text-xs text-center text-muted-foreground">
-              By signing up, you agree to our{" "}
-              <Link href="/terms" className="underline">
+              By creating an account, you agree to our{" "}
+              <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="underline">
+              <Link href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
             </p>

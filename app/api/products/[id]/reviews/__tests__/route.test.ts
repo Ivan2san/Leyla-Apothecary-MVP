@@ -295,7 +295,13 @@ describe('GET /api/products/[id]/reviews', () => {
       },
     ]
 
+    const mockStats = {
+      averageRating: 4.5,
+      totalCount: 2,
+    }
+
     ;(ReviewService.getProductReviews as jest.Mock).mockResolvedValue(mockReviews)
+    ;(ReviewService.getProductReviewStats as jest.Mock).mockResolvedValue(mockStats)
 
     const request = createMockRequest({}, 'GET')
     const response = await GET(request, { params: { id: 'product-123' } })
@@ -303,6 +309,8 @@ describe('GET /api/products/[id]/reviews', () => {
 
     expect(response.status).toBe(200)
     expect(data.reviews).toEqual(mockReviews)
+    expect(data.averageRating).toBe(4.5)
+    expect(data.totalCount).toBe(2)
     expect(ReviewService.getProductReviews).toHaveBeenCalledWith('product-123', {
       sortBy: 'recent',
       limit: 20,
@@ -312,8 +320,13 @@ describe('GET /api/products/[id]/reviews', () => {
 
   it('should get product reviews with custom sorting', async () => {
     const mockReviews: Review[] = []
+    const mockStats = {
+      averageRating: 0,
+      totalCount: 0,
+    }
 
     ;(ReviewService.getProductReviews as jest.Mock).mockResolvedValue(mockReviews)
+    ;(ReviewService.getProductReviewStats as jest.Mock).mockResolvedValue(mockStats)
 
     const request = createMockRequest({}, 'GET')
     request.nextUrl.searchParams.set('sortBy', 'helpful')
@@ -329,8 +342,13 @@ describe('GET /api/products/[id]/reviews', () => {
 
   it('should get product reviews with pagination', async () => {
     const mockReviews: Review[] = []
+    const mockStats = {
+      averageRating: 0,
+      totalCount: 0,
+    }
 
     ;(ReviewService.getProductReviews as jest.Mock).mockResolvedValue(mockReviews)
+    ;(ReviewService.getProductReviewStats as jest.Mock).mockResolvedValue(mockStats)
 
     const request = createMockRequest({}, 'GET')
     request.nextUrl.searchParams.set('limit', '10')
