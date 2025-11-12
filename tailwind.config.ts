@@ -18,6 +18,13 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Brand colors from design spec
+        'forest': '#344E41',
+        'sage': '#A3B18A',
+        'terracotta': '#D98C4A',
+        'warm-white': '#FDFBF8',
+
+        // Keep shadcn/ui semantic colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -51,6 +58,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      fontFamily: {
+        'lora': ['Lora', 'serif'],
+        'inter': ['Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
