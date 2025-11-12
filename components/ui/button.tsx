@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline" | "ghost" | "destructive"
+  variant?: "default" | "secondary" | "outline" | "ghost" | "destructive" | "sage" | "terracotta" | "forest"
   size?: "default" | "sm" | "lg" | "icon"
 }
 
@@ -12,15 +12,23 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          "inline-flex items-center justify-center rounded-md font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          "inline-flex items-center justify-center rounded-md font-semibold transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
           {
-            "bg-primary text-primary-foreground hover:bg-primary/90":
-              variant === "default",
-            "border border-input bg-background hover:bg-accent hover:text-accent-foreground":
+            // Brand Variants (Hardcoded Colors)
+            "bg-sage text-forest hover:bg-sage/90":
+              variant === "default" || variant === "sage", // Default and Sage (Primary)
+            "bg-terracotta text-warm-white hover:bg-terracotta/90":
+              variant === "secondary" || variant === "terracotta", // Secondary and Terracotta (CTA)
+            "bg-forest text-warm-white hover:bg-forest/90":
+              variant === "forest", // Explicit Forest
+
+            // Utility Variants
+            "border-2 border-sage text-forest bg-transparent hover:bg-sage/10":
               variant === "outline",
-            "hover:bg-accent hover:text-accent-foreground": variant === "ghost",
+            "text-forest hover:bg-sage/10":
+              variant === "ghost",
             "bg-destructive text-destructive-foreground hover:bg-destructive/90":
               variant === "destructive",
           },

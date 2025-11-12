@@ -4,26 +4,53 @@
 
 @layer base {
   :root {
-    /* Brand color mappings - warm-white (#FDFBF8) as background */
-    --background: 36 56% 98%;
-    --foreground: 143 25% 24%; /* forest for text */
-    --card: 0 0% 100%;
-    --card-foreground: 143 25% 24%;
+    /*
+     * Leyla's Apothecary Brand Color System
+     * Primary: Sage Green (#A3B18A) - Growth, balance, nature
+     * Secondary: Terracotta (#D98C4A) - Warmth, earth, grounding
+     * Base: Warm Off-White (#FDFBF8) - Purity, light, space
+     * Accent: Deep Forest Green (#344E41) - Wisdom, depth, trust
+     * Support: Soft Gray - Subtlety, sophistication
+     */
+
+    /* Base colors - Warm Off-White background with Forest text */
+    --background: 36 56% 98%; /* #FDFBF8 */
+    --foreground: 143 25% 24%; /* #344E41 Forest */
+
+    /* Card components - White cards with Forest text */
+    --card: 0 0% 100%; /* Pure white for card contrast */
+    --card-foreground: 143 25% 24%; /* #344E41 Forest */
+
+    /* Popover/Dialog components */
     --popover: 0 0% 100%;
-    --popover-foreground: 143 25% 24%;
-    --primary: 143 25% 24%; /* forest */
-    --primary-foreground: 36 56% 98%; /* warm-white */
-    --secondary: 60 21% 60%; /* sage */
-    --secondary-foreground: 143 25% 24%;
-    --muted: 60 21% 90%;
-    --muted-foreground: 143 25% 50%;
-    --accent: 30 64% 57%; /* terracotta */
-    --accent-foreground: 36 56% 98%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 143 25% 24%; /* #344E41 Forest */
+
+    /* Primary actions - Sage Green (main interactive elements) */
+    --primary: 60 21% 60%; /* #A3B18A Sage */
+    --primary-foreground: 143 25% 24%; /* #344E41 Forest for contrast */
+
+    /* Secondary actions - Terracotta (CTAs, highlights) */
+    --secondary: 30 64% 57%; /* #D98C4A Terracotta */
+    --secondary-foreground: 36 56% 98%; /* #FDFBF8 Warm White */
+
+    /* Muted elements - Light Sage tones */
+    --muted: 60 21% 93%; /* Very light sage */
+    --muted-foreground: 143 25% 40%; /* Muted forest */
+
+    /* Accent elements - Deep Forest (emphasis, important UI) */
+    --accent: 143 25% 24%; /* #344E41 Forest */
+    --accent-foreground: 36 56% 98%; /* #FDFBF8 Warm White */
+
+    /* Destructive actions - Keep red but muted */
+    --destructive: 0 70% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 60 21% 85%; /* sage tint */
-    --input: 60 21% 90%;
-    --ring: 30 64% 57%; /* terracotta */
+
+    /* Borders and inputs - Sage with transparency */
+    --border: 60 21% 80%; /* Sage tint for subtle borders */
+    --input: 60 21% 85%; /* Light sage for input backgrounds */
+    --ring: 60 21% 60%; /* #A3B18A Sage for focus rings */
+
+    /* Border radius - Softer, more organic */
     --radius: 0.5rem;
   }
 
@@ -57,5 +84,64 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Brand-specific button variants */
+  .btn-sage {
+    @apply bg-sage hover:bg-sage/90 text-forest font-semibold;
+  }
+
+  .btn-terracotta {
+    @apply bg-terracotta hover:bg-terracotta/90 text-warm-white font-semibold;
+  }
+
+  .btn-forest {
+    @apply bg-forest hover:bg-forest/90 text-warm-white font-semibold;
+  }
+
+  /* Brand-specific card variants */
+  .card-sage {
+    @apply bg-sage/10 border-sage/30;
+  }
+
+  .card-terracotta {
+    @apply bg-terracotta/10 border-terracotta/30;
+  }
+
+  .card-forest {
+    @apply bg-forest/5 border-forest/20;
+  }
+
+  /* Brand-specific badge variants */
+  .badge-sage {
+    @apply bg-sage/20 text-forest border-sage;
+  }
+
+  .badge-terracotta {
+    @apply bg-terracotta/20 text-forest border-terracotta;
+  }
+
+  /* Brand-specific text variants */
+  .text-brand-primary {
+    @apply text-sage;
+  }
+
+  .text-brand-secondary {
+    @apply text-terracotta;
+  }
+
+  .text-brand-accent {
+    @apply text-forest;
+  }
+
+  /* Brand-specific background patterns */
+  .bg-brand-gradient {
+    @apply bg-gradient-to-br from-sage/20 via-warm-white to-terracotta/20;
+  }
+
+  .bg-brand-subtle {
+    @apply bg-sage/5;
   }
 }
