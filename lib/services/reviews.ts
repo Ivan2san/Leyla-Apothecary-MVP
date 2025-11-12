@@ -241,4 +241,36 @@ export class ReviewService {
 
     return data
   }
+
+  /**
+   * Get review statistics for a product (average rating and total count)
+   */
+  static async getProductReviewStats(
+    productId: string
+  ): Promise<{ averageRating: number; totalCount: number }> {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('product_id', productId)
+      .eq('is_approved', true)
+
+    if (error) {
+      throw new Error(`Failed to get product review stats: ${error.message}`)
+    }
+
+    if (!data || data.length === 0) {
+      return { averageRating: 0, totalCount: 0 }
+    }
+
+    const totalCount = data.length
+    const sumRating = data.reduce((sum, review) => sum + review.rating, 0)
+    const averageRating = sumRating / totalCount
+
+    return {
+      averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+      totalCount,
+    }
+  }
 }

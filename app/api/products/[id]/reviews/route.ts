@@ -100,7 +100,14 @@ export async function GET(
       offset,
     })
 
-    return NextResponse.json({ reviews })
+    // Get average rating and total count
+    const stats = await ReviewService.getProductReviewStats(productId)
+
+    return NextResponse.json({
+      reviews,
+      averageRating: stats.averageRating,
+      totalCount: stats.totalCount,
+    })
   } catch (error: any) {
     console.error('Get reviews error:', error)
     return NextResponse.json(
