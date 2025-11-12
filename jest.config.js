@@ -37,14 +37,27 @@ const customJestConfig = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
-  // Coverage threshold (start conservative, increase over time)
+  // Coverage threshold (per TEST_REQUIREMENTS.md)
   coverageThreshold: {
     global: {
-      statements: 0, // Will increase as we write tests
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      branches: 70,    // 70% branch coverage
+      functions: 75,   // 75% function coverage
+      lines: 80,       // 80% line coverage
+      statements: 80   // 80% statement coverage
     },
+    // Critical files need higher coverage
+    './lib/stripe/': {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
+    },
+    './lib/auth/': {
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85
+    }
   },
 }
 

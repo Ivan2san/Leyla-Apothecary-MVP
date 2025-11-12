@@ -16,6 +16,22 @@ NC='\033[0m' # No Color
 # Track if any checks fail
 CHECKS_FAILED=0
 
+# 0. Check branch name follows conventions (skip for main/master)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+  echo "🔀 Validating branch name..."
+  if [[ ! "$CURRENT_BRANCH" =~ ^(feature|fix|hotfix|test|docs|refactor)/[a-z0-9-]+$ ]]; then
+    echo -e "${YELLOW}⚠️  WARNING: Branch name doesn't follow convention${NC}"
+    echo "   Expected: feature/*, fix/*, hotfix/*, test/*, docs/*, refactor/*"
+    echo "   Current: $CURRENT_BRANCH"
+    echo "   See .claude/PROJECT_RULES.md for naming conventions"
+    echo ""
+  else
+    echo -e "${GREEN}✓ Branch name follows convention${NC}"
+    echo ""
+  fi
+fi
+
 # 1. Check for forbidden file modifications
 echo "📋 Checking forbidden files..."
 FORBIDDEN_FILES=(

@@ -11,11 +11,13 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:coverage:check": "jest --coverage --coverageThreshold",
     "test:critical": "jest --testPathPattern=critical --passWithNoTests",
     "quality-check": "npm run type-check && npm run lint && npm run test && npm run build",
     "check-testing-debt": "node scripts/check-testing-requirements.js",
     "gov:check": "bash .claude/validate-changes.sh",
     "gov:validate": "npm run type-check && npm run lint && npm test -- --passWithNoTests",
+    "gov:status": "bash .claude/governance-status.sh",
     "precommit": "npm run gov:validate",
     "prepare": "husky"
   },
