@@ -8,6 +8,17 @@ export interface Profile {
   updated_at: string
 }
 
+export type ProductImageType = 'primary' | 'lifestyle' | 'detail' | 'scale'
+
+export interface ProductImage {
+  id: string
+  url: string
+  alt: string
+  type: ProductImageType
+  position: number
+  created_at: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -17,11 +28,13 @@ export interface Product {
   price: number
   volume_ml: number
   stock_quantity: number
-  image_url?: string
+  image_url?: string // Deprecated: use images array instead
+  images?: ProductImage[]
   ingredients: string[]
   benefits: string[]
   dosage_instructions: string
   contraindications?: string[]
+  is_active?: boolean
   created_at: string
   updated_at: string
 }
@@ -153,4 +166,41 @@ export interface CheckoutFormData {
   shipping_address: Address
   billing_same_as_shipping: boolean
   billing_address?: Address
+}
+
+// Review types
+export interface Review {
+  id: string
+  product_id: string
+  user_id: string
+  user_name?: string // Joined from profiles
+  rating: 1 | 2 | 3 | 4 | 5
+  title: string
+  comment: string
+  verified_purchase: boolean
+  helpful_count: number
+  is_approved: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateReviewInput {
+  product_id: string
+  rating: number
+  title: string
+  comment: string
+}
+
+export interface UpdateReviewInput {
+  rating?: number
+  title?: string
+  comment?: string
+}
+
+export interface ReviewVote {
+  id: string
+  review_id: string
+  user_id: string
+  is_helpful: boolean
+  created_at: string
 }
