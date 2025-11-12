@@ -83,7 +83,7 @@ export function ReviewForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Rating */}
       <div className="space-y-2">
-        <Label htmlFor="rating">Rating *</Label>
+        <Label>Rating *</Label>
         <div>
           <StarRating rating={rating} onChange={setRating} size="lg" />
         </div>
