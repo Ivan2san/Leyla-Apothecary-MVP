@@ -1,33 +1,30 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { HeroBanner } from "@/components/ui/hero-banner"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function Home() {
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-sage/10 to-warm-white">
-        <div className="container mx-auto text-center">
-          <h1 className="font-lora text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-forest to-sage bg-clip-text text-transparent">
-            Natural Wellness, Personalized
-          </h1>
-          <p className="text-xl text-forest/70 mb-8 max-w-2xl mx-auto">
-            Premium herbal tinctures and custom compounds crafted with expertise and care
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/products">
-              <Button size="lg" className="bg-terracotta hover:bg-terracotta/90 text-warm-white">
-                Shop Tinctures
-              </Button>
-            </Link>
-            <Link href="/booking">
-              <Button size="lg" variant="outline" className="border-forest text-forest hover:bg-forest hover:text-warm-white">
-                Book Consultation
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Hero Banner */}
+      <HeroBanner
+        title="Natural Wellness, Personalized"
+        subtitle="Welcome to Leyla's Apothecary"
+        description="Premium herbal tinctures and custom compounds crafted with expertise and care"
+        imageSrc="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2940"
+        imageAlt="Herbal medicine bottles and fresh herbs"
+        primaryCTA={{
+          text: "Shop Tinctures",
+          href: "/products",
+        }}
+        secondaryCTA={{
+          text: "Book Consultation",
+          href: "/booking",
+        }}
+        height="large"
+        textAlign="center"
+        overlay="gradient"
+      />
 
       {/* Features Section */}
       <section className="py-16 px-4 bg-warm-white">

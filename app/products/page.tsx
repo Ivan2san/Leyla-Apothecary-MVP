@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { ProductCard } from "@/components/products/product-card"
 import { Product } from "@/types"
+import { HeroBanner } from "@/components/ui/hero-banner"
 
 export const metadata = {
   title: "Herbal Tinctures - Leyla's Apothecary",
@@ -48,16 +49,20 @@ export default async function ProductsPage() {
   ])
 
   return (
-    <div className="container py-12">
-      {/* Header */}
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Premium Herbal Tinctures
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover our collection of high-quality herbal extracts, carefully crafted for your wellness journey
-        </p>
-      </div>
+    <div className="flex flex-col">
+      {/* Hero Banner */}
+      <HeroBanner
+        title="Premium Herbal Tinctures"
+        subtitle="Shop Our Collection"
+        description="Discover high-quality herbal extracts, carefully crafted for your wellness journey"
+        imageSrc="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=2940"
+        imageAlt="Collection of herbal tincture bottles"
+        height="medium"
+        textAlign="center"
+        overlay="dark"
+      />
+
+      <div className="container py-12">
 
       {/* Category Filter */}
       {categories.length > 0 && (
@@ -98,6 +103,7 @@ export default async function ProductsPage() {
           </div>
         </>
       )}
+      </div>
     </div>
   )
 }
