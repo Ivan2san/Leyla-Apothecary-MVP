@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "echo '⚠️  No tests configured yet! See TESTING_REQUIREMENTS.md' && exit 0",
+    "test:watch": "echo '⚠️  No tests configured yet! See TESTING_REQUIREMENTS.md'",
+    "test:coverage": "echo '⚠️  No tests configured yet! See TESTING_REQUIREMENTS.md'",
+    "quality-check": "npm run type-check && npm run lint && npm run test && npm run build",
+    "check-testing-debt": "node scripts/check-testing-requirements.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
