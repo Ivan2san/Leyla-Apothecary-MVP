@@ -115,7 +115,7 @@ describe('OrderService', () => {
 
       // Setup different responses for different queries
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           // First call: fetch products
@@ -175,7 +175,7 @@ describe('OrderService', () => {
       }
 
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           return Promise.resolve({
@@ -223,7 +223,7 @@ describe('OrderService', () => {
       }
 
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           return Promise.resolve({
@@ -312,7 +312,7 @@ describe('OrderService', () => {
 
     it('should rollback order if order items creation fails (STEP 6)', async () => {
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           // Products fetch success
@@ -345,7 +345,7 @@ describe('OrderService', () => {
 
     it('should decrement stock for all products (STEP 7)', async () => {
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           return Promise.resolve({ data: mockProducts, error: null }).then(resolve)
@@ -373,7 +373,7 @@ describe('OrderService', () => {
 
     it('should calculate 8% tax correctly (STEP 3)', async () => {
       let callCount = 0
-      queryChain.then.mockImplementation((resolve) => {
+      queryChain.then.mockImplementation((resolve: (value: any) => void) => {
         callCount++
         if (callCount === 1) {
           return Promise.resolve({ data: mockProducts, error: null }).then(resolve)

@@ -379,7 +379,7 @@ describe('ReviewService', () => {
       }
 
       // After first call fails, set success for update
-      queryChain.then.mockImplementationOnce((resolve) => {
+      queryChain.then.mockImplementationOnce((resolve: (value: any) => void) => {
         queryChain._setResolveData({ data: mockUpdatedVote, error: null })
         return Promise.resolve({ data: null, error: { code: '23505' } }).then(resolve)
       })

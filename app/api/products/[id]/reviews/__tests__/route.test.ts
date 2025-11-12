@@ -1,6 +1,7 @@
 import { POST, GET } from '../route'
 import { createClient } from '@/lib/supabase/server'
 import { ReviewService } from '@/lib/services/reviews'
+import { Review } from '@/types'
 
 // Mock dependencies
 jest.mock('@/lib/supabase/server')
@@ -310,7 +311,7 @@ describe('GET /api/products/[id]/reviews', () => {
   })
 
   it('should get product reviews with custom sorting', async () => {
-    const mockReviews = []
+    const mockReviews: Review[] = []
 
     ;(ReviewService.getProductReviews as jest.Mock).mockResolvedValue(mockReviews)
 
@@ -327,7 +328,7 @@ describe('GET /api/products/[id]/reviews', () => {
   })
 
   it('should get product reviews with pagination', async () => {
-    const mockReviews = []
+    const mockReviews: Review[] = []
 
     ;(ReviewService.getProductReviews as jest.Mock).mockResolvedValue(mockReviews)
 
