@@ -73,7 +73,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
 
-        <div className="flex gap-3 w-full">
+        <div className="flex items-center gap-3 w-full">
           <Link href={`/products/${product.slug}`} className="flex-1">
             <Button variant="outline" className="w-full h-10">
               View Details
