@@ -4,6 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import type { BrandOverlayVariant } from "@/lib/visual/overlay-variants"
+import { OVERLAY_STYLES, MOBILE_OVERLAY_STYLES, TEXTURE_OVERLAY } from "@/lib/visual/overlay-variants"
 
 interface HeroBannerProps {
   title: string
@@ -19,10 +21,11 @@ interface HeroBannerProps {
     text: string
     href: string
   }
-  overlay?: "light" | "dark" | "gradient" | "none"
+  overlay?: "light" | "dark" | "gradient" | "none" | BrandOverlayVariant
   height?: "small" | "medium" | "large" | "full"
   textAlign?: "left" | "center" | "right"
   textPosition?: "top" | "center" | "bottom"
+  withTexture?: boolean
   className?: string
 }
 
@@ -34,10 +37,11 @@ export function HeroBanner({
   imageAlt,
   primaryCTA,
   secondaryCTA,
-  overlay = "gradient",
+  overlay = "sage-gradient",
   height = "large",
   textAlign = "center",
   textPosition = "center",
+  withTexture = false,
   className,
 }: HeroBannerProps) {
   const heightClasses = {
@@ -47,11 +51,10 @@ export function HeroBanner({
     full: "min-h-screen",
   }
 
-  const overlayClasses = {
+  const legacyOverlayClasses = {
     light: "bg-white/60",
     dark: "bg-black/60",
     gradient: "bg-gradient-to-b from-black/40 via-black/30 to-black/50",
-    none: "",
   }
 
   const textAlignClasses = {
@@ -64,6 +67,24 @@ export function HeroBanner({
     top: "justify-start pt-20",
     center: "justify-center",
     bottom: "justify-end pb-20",
+  }
+
+  /**
+   * Get overlay style based on overlay prop
+   * Supports both legacy overlays and brand overlays
+   */
+  const getOverlayStyle = () => {
+    if (overlay === "none") return undefined
+
+    // Handle legacy overlay types (for backward compatibility)
+    if (overlay === "light" || overlay === "dark" || overlay === "gradient") {
+      return undefined // Use className instead
+    }
+
+    // Handle brand overlays
+    return {
+      background: OVERLAY_STYLES[overlay as BrandOverlayVariant],
+    }
   }
 
   return (
@@ -83,9 +104,42 @@ export function HeroBanner({
           priority
           className="object-cover"
           sizes="100vw"
+          quality={85}
         />
+
+        {/* Brand Color Overlay */}
         {overlay !== "none" && (
-          <div className={cn("absolute inset-0", overlayClasses[overlay])} />
+          <>
+            {/* Desktop and mobile overlays with responsive behavior */}
+            <div
+              className={cn(
+                "absolute inset-0",
+                // Use legacy overlay classes if applicable
+                overlay === "light" || overlay === "dark" || overlay === "gradient"
+                  ? legacyOverlayClasses[overlay as keyof typeof legacyOverlayClasses]
+                  : ""
+              )}
+              style={getOverlayStyle()}
+            >
+              {/* Mobile-specific overlay (higher opacity) */}
+              <div
+                className="absolute inset-0 md:hidden"
+                style={
+                  overlay !== "light" && overlay !== "dark" && overlay !== "gradient"
+                    ? { background: MOBILE_OVERLAY_STYLES[overlay as BrandOverlayVariant] }
+                    : undefined
+                }
+              />
+            </div>
+
+            {/* Optional Texture Overlay */}
+            {withTexture && (
+              <div
+                className="absolute inset-0 opacity-10 pointer-events-none"
+                style={{ backgroundImage: TEXTURE_OVERLAY }}
+              />
+            )}
+          </>
         )}
       </div>
 
