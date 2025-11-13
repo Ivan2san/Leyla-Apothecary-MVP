@@ -42,8 +42,9 @@ export async function POST(request: NextRequest) {
     const order = await OrderService.createOrder(orderData)
 
     if (user.email) {
-      OrderService.getOrder(order.id)
-        .then((fullOrder) => {
+      ;(async () => {
+        try {
+          const fullOrder = await OrderService.getOrder(order.id)
           if (!fullOrder) return
 
           const items =
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
               unitPrice: item.price,
             })) ?? []
 
-          return EmailService.sendOrderConfirmation({
+          await EmailService.sendOrderConfirmation({
             email: user.email!,
             orderNumber: fullOrder.order_number ?? order.order_number,
             createdAt: fullOrder.created_at ?? new Date().toISOString(),
@@ -66,10 +67,10 @@ export async function POST(request: NextRequest) {
             },
             shippingAddress: fullOrder.shipping_address,
           })
-        })
-        .catch((emailError) => {
+        } catch (emailError) {
           console.error('Failed to send order confirmation email:', emailError)
-        })
+        }
+      })()
     }
 
     return NextResponse.json({ order }, { status: 201 })
