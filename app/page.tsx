@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { HeroBanner } from "@/components/ui/hero-banner"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { NewsletterSignup } from "@/components/marketing/newsletter-signup"
 
 export default function Home() {
   return (
@@ -87,6 +88,13 @@ export default function Home() {
               View All Products
             </Button>
           </Link>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-16 px-4 bg-warm-white">
+        <div className="container mx-auto max-w-5xl">
+          <NewsletterSignup />
         </div>
       </section>
     </div>

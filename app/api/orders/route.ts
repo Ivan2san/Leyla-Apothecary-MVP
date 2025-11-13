@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { OrderService, CreateOrderData } from '@/lib/services/orders'
 import { createOrderSchema } from '@/lib/validations/orders'
 import { ZodError } from 'zod'
+import { EmailService } from '@/lib/services/email'
 
 // Force dynamic rendering since we use Supabase (cookies)
 export const dynamic = 'force-dynamic'
@@ -39,6 +40,37 @@ export async function POST(request: NextRequest) {
 
     // Create the order (with server-side price validation and stock management)
     const order = await OrderService.createOrder(orderData)
+
+    if (user.email) {
+      OrderService.getOrder(order.id)
+        .then((fullOrder) => {
+          if (!fullOrder) return
+
+          const items =
+            fullOrder.order_items?.map((item: any) => ({
+              name: item.products?.name ?? 'Herbal Tincture',
+              quantity: item.quantity,
+              unitPrice: item.price,
+            })) ?? []
+
+          return EmailService.sendOrderConfirmation({
+            email: user.email!,
+            orderNumber: fullOrder.order_number ?? order.order_number,
+            createdAt: fullOrder.created_at ?? new Date().toISOString(),
+            items,
+            totals: {
+              subtotal: Number(fullOrder.subtotal ?? 0),
+              shipping: Number(fullOrder.shipping ?? 0),
+              tax: Number(fullOrder.tax ?? 0),
+              total: Number(fullOrder.total ?? 0),
+            },
+            shippingAddress: fullOrder.shipping_address,
+          })
+        })
+        .catch((emailError) => {
+          console.error('Failed to send order confirmation email:', emailError)
+        })
+    }
 
     return NextResponse.json({ order }, { status: 201 })
   } catch (error: any) {
