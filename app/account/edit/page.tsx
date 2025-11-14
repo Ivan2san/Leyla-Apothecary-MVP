@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { requireAuth, getUserProfile } from "@/lib/auth/auth-helpers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { AlertTriangle } from "lucide-react"
 
 export const metadata = {
@@ -32,16 +33,21 @@ export default async function EditProfilePage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild variant="default" className="flex-1">
-                <a href="mailto:support@leylasapothecary.com?subject=Profile%20Update%20Request">
-                  Contact Support
-                </a>
-              </Button>
-              <Button asChild variant="outline" className="flex-1">
-                <Link href="/account">
-                  Back to Account
-                </Link>
-              </Button>
+              <a
+                className={cn(buttonVariants(), "flex-1 text-center")}
+                href="mailto:support@leylasapothecary.com?subject=Profile%20Update%20Request"
+              >
+                Contact Support
+              </a>
+              <Link
+                href="/account"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "flex-1 text-center"
+                )}
+              >
+                Back to Account
+              </Link>
             </div>
           </CardContent>
         </Card>
