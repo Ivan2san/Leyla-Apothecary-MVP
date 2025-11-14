@@ -137,6 +137,38 @@ export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
 export const getRecommendedAsset = (id: string) =>
   RECOMMENDED_ASSETS.find((asset) => asset.id === id)
 
+export interface HeroAssignment {
+  id: string
+  page: string
+  route: string
+  description: string
+  assetId: string
+}
+
+export const HERO_ASSIGNMENTS: HeroAssignment[] = [
+  {
+    id: "home",
+    page: "Homepage",
+    route: "/",
+    description: "Primary hero with personalization CTA.",
+    assetId: "hero-home-spring",
+  },
+  {
+    id: "products",
+    page: "Products",
+    route: "/products",
+    description: "Catalog hero showcasing the full collection.",
+    assetId: "hero-products-collection",
+  },
+  {
+    id: "booking",
+    page: "Booking",
+    route: "/booking",
+    description: "Consultation hero for lead-gen landing.",
+    assetId: "hero-booking-greenhouse",
+  },
+]
+
 export interface DirectoryNode {
   name: string
   children?: DirectoryNode[]
