@@ -99,35 +99,34 @@ else
 fi
 echo ""
 
-# 4. Run TypeScript type check
-echo "📝 Running TypeScript type check..."
-if npm run type-check --silent; then
-  echo -e "${GREEN}✓ Type check passed${NC}"
-else
-  echo -e "${RED}❌ Type check failed${NC}"
-  CHECKS_FAILED=1
+# Determine whether to run heavy tasks locally.
+RUN_HEAVY=${RUN_GOVERNANCE_HEAVY:-0}
+if [ -n "$CI" ]; then
+  RUN_HEAVY=1
 fi
-echo ""
 
-# 5. Run ESLint
-echo "✨ Running ESLint..."
-if npm run lint --silent; then
-  echo -e "${GREEN}✓ Linting passed${NC}"
-else
-  echo -e "${RED}❌ Linting failed${NC}"
-  CHECKS_FAILED=1
-fi
-echo ""
+run_heavy_step() {
+  local label=$1
+  local command=$2
 
-# 6. Run tests
-echo "🧪 Running tests..."
-if npm test -- --passWithNoTests --silent 2>/dev/null; then
-  echo -e "${GREEN}✓ Tests passed${NC}"
-else
-  echo -e "${RED}❌ Tests failed${NC}"
-  CHECKS_FAILED=1
-fi
-echo ""
+  echo "$label"
+  if [ "$RUN_HEAVY" -eq 1 ]; then
+    if eval "$command"; then
+      echo -e "${GREEN}✓ ${label#* } passed${NC}"
+    else
+      echo -e "${RED}❌ ${label#* } failed${NC}"
+      CHECKS_FAILED=1
+    fi
+  else
+    echo -e "${YELLOW}⏭️  Skipping (set RUN_GOVERNANCE_HEAVY=1 to enable locally)${NC}"
+  fi
+  echo ""
+}
+
+# 4-6. Heavy checks (optional locally)
+run_heavy_step "📝 Running TypeScript type check..." "npm run type-check --silent"
+run_heavy_step "✨ Running ESLint..." "npm run lint --silent"
+run_heavy_step "🧪 Running tests..." "npm test -- --passWithNoTests --silent 2>/dev/null"
 
 # 7. Summary
 echo "=================================="

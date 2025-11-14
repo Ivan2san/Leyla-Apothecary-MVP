@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+export type AuthActionState = {
+  error?: string
+}
+
 export async function signUp(formData: {
   email: string
   password: string
@@ -29,12 +33,22 @@ export async function signUp(formData: {
   return { success: true, data }
 }
 
-export async function signIn(formData: { email: string; password: string }) {
+export async function signIn(
+  _prevState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const email = formData.get('email')?.toString().trim() ?? ''
+  const password = formData.get('password')?.toString() ?? ''
+
+  if (!email || !password) {
+    return { error: 'Email and password are required.' }
+  }
+
   const supabase = await createClient()
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: formData.email,
-    password: formData.password,
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
   })
 
   if (error) {

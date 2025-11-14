@@ -52,14 +52,18 @@ cp .env.example .env.local
 
 Then edit `.env.local` with your actual credentials:
 - Supabase URL and keys
+- `ADMIN_EMAIL` that should have admin access inside the dashboard
 - Stripe API keys
 - Other service credentials
+- (Optional) `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` for running Playwright admin smoke tests
 
 ### Supabase Setup
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
 2. Run the database migrations (see `docs/` for SQL schema)
 3. Copy your project URL and anon key to `.env.local`
+4. Follow `docs/SUPABASE_AUTH_SETUP.md` to configure the Site URL + redirect list so production magic links land on Vercel (otherwise logins will fail with `otp_expired`).
+5. Use `node scripts/set-admin-password.mjs` any time you need to create/reset the canonical admin account for testers.
 
 ### Stripe Setup
 
@@ -77,6 +81,24 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### End-to-end Tests (Playwright)
+
+```bash
+# Set once per shell – must match a real Supabase admin user
+export E2E_ADMIN_EMAIL="admin@example.com"
+export E2E_ADMIN_PASSWORD="super-secret"
+
+# Automatically starts/stops a Next.js dev server on 127.0.0.1:3100
+npm run test:e2e
+```
+
+By default the Playwright config spins up `npm run dev:e2e` so you never have to launch a dev server manually.  
+If you already have one running (or want to point the tests at a remote preview), disable the helper and override the base URL:
+
+```bash
+PLAYWRIGHT_WEB_SERVER=off PLAYWRIGHT_BASE_URL="https://preview.your-app.com" npm run test:e2e
+```
 
 ### Building for Production
 

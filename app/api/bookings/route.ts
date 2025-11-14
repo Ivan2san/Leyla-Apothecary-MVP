@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { BookingService } from '@/lib/services/booking.service'
 import { createBookingSchema } from '@/lib/validations/bookings'
+import { EmailService } from '@/lib/services/email'
 
 export async function GET() {
   try {
@@ -77,6 +78,21 @@ export async function POST(request: NextRequest) {
         time,
         notes
       )
+
+      if (user.email) {
+        const fullBooking = await BookingService.getBooking(booking.id)
+        if (fullBooking) {
+          await EmailService.sendBookingConfirmation({
+            email: user.email,
+            name: user.user_metadata?.full_name,
+            type: fullBooking.type_config?.name || fullBooking.type,
+            date: fullBooking.date,
+            time: fullBooking.time,
+            duration: fullBooking.duration_minutes,
+            notes: fullBooking.notes,
+          })
+        }
+      }
 
       return NextResponse.json(
         {

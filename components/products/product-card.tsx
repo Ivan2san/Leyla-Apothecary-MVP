@@ -73,14 +73,14 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-3 w-full">
-          <Link href={`/products/${product.slug}`} className="flex-1">
+        <div className="grid grid-cols-2 gap-3 w-full">
+          <Link href={`/products/${product.slug}`} className="block">
             <Button variant="outline" className="w-full h-10">
               View Details
             </Button>
           </Link>
           <Button
-            className="flex-1 h-10"
+            className="w-full h-10"
             disabled={product.stock_quantity === 0}
             onClick={handleAddToCart}
           >

@@ -115,6 +115,16 @@ Open http://localhost:3000 in your browser. You should see the homepage!
    SUPABASE_SERVICE_ROLE_KEY
    [Paste your service role key from step 3]
 
+   ADMIN_EMAIL
+   admin@leylasapothecary.com
+
+   # Optional – required only if you run Playwright admin tests locally
+   E2E_ADMIN_EMAIL
+   [Admin login for QA]
+
+   E2E_ADMIN_PASSWORD
+   [Admin password for QA]
+
    NEXT_PUBLIC_APP_URL
    [Leave empty for now - Vercel will provide this after first deployment]
    ```
@@ -158,6 +168,23 @@ Open http://localhost:3000 in your browser. You should see the homepage!
 - [ ] Service role key is added to Vercel (do not share publicly)
 - [ ] Redirect URLs configured in Supabase
 - [ ] Row Level Security (RLS) is enabled on all tables (already done in migration)
+
+## 🧪 Running the Admin Playwright Smoke Test
+
+1. Ensure the admin account you plan to use exists in Supabase and matches `ADMIN_EMAIL`.
+2. Export the env variables once per shell:
+   ```bash
+   export E2E_ADMIN_EMAIL="admin@example.com"
+   export E2E_ADMIN_PASSWORD="super-secret"
+   ```
+3. Run the test – this starts its own Next.js server on `127.0.0.1:3100` automatically:
+   ```bash
+   npm run test:e2e
+   ```
+4. Already have a dev server running or want to test a remote preview? Disable the helper and point the tests elsewhere:
+   ```bash
+   PLAYWRIGHT_WEB_SERVER=off PLAYWRIGHT_BASE_URL="https://preview.your-app.com" npm run test:e2e
+   ```
 
 ## 📊 What's Included in the Database
 

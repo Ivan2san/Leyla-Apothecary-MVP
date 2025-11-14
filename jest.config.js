@@ -37,6 +37,12 @@ const customJestConfig = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/coverage/',
+    '/tests/e2e/',
+  ],
   // Coverage threshold (per TEST_REQUIREMENTS.md)
   coverageThreshold: {
     global: {

@@ -18,7 +18,8 @@ export default function BookingPage() {
         imageAlt="Peaceful consultation space with natural elements"
         height="medium"
         textAlign="center"
-        overlay="dark"
+        overlay="forest-gradient"
+        withTexture
       />
 
       {/* Booking Form Section */}

@@ -59,7 +59,8 @@ export default async function ProductsPage() {
         imageAlt="Collection of herbal tincture bottles"
         height="medium"
         textAlign="center"
-        overlay="dark"
+        overlay="terracotta-gradient"
+        withTexture
       />
 
       <div className="container py-12">

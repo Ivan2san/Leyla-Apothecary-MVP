@@ -91,3 +91,14 @@ global.Response = class Response {
     return new Response(data, init)
   }
 }
+
+// Polyfill TextEncoder/TextDecoder for packages that expect Node 18+ globals
+import { TextEncoder, TextDecoder } from 'util'
+
+if (!global.TextEncoder) {
+  global.TextEncoder = TextEncoder
+}
+
+if (!global.TextDecoder) {
+  global.TextDecoder = TextDecoder
+}
