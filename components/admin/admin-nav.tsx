@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: "Orders", href: "/admin/orders" },
   { label: "Bookings", href: "/admin/bookings" },
   { label: "Analytics", href: "/admin/analytics" },
+  { label: "Visual System", href: "/admin/visual-system" },
 ]
 
 export function AdminNav() {
