@@ -146,6 +146,8 @@ export interface HeroAssignment {
   route: string
   description: string
   assetId: string
+  mobileAssetId?: string | null
+  overlay: BrandOverlayVariant
 }
 
 export const HERO_ASSIGNMENTS: HeroAssignment[] = [
@@ -155,6 +157,7 @@ export const HERO_ASSIGNMENTS: HeroAssignment[] = [
     route: "/",
     description: "Primary hero with personalization CTA.",
     assetId: "hero-home-spring",
+    overlay: "sage-gradient",
   },
   {
     id: "products",
@@ -162,6 +165,7 @@ export const HERO_ASSIGNMENTS: HeroAssignment[] = [
     route: "/products",
     description: "Catalog hero showcasing the full collection.",
     assetId: "hero-products-collection",
+    overlay: "terracotta-gradient",
   },
   {
     id: "booking",
@@ -169,6 +173,7 @@ export const HERO_ASSIGNMENTS: HeroAssignment[] = [
     route: "/booking",
     description: "Consultation hero for lead-gen landing.",
     assetId: "hero-booking-greenhouse",
+    overlay: "forest-gradient",
   },
 ]
 

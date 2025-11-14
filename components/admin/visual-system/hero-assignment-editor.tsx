@@ -42,7 +42,7 @@ function HeroAssignmentCard({ assignment }: { assignment: HeroAssignmentWithAsse
           <p className="text-xs uppercase tracking-wide text-forest/60">{assignment.page}</p>
           <p className="font-semibold text-forest">{assignment.description}</p>
         </div>
-        <Button asChild variant="link" className="text-xs text-terracotta">
+        <Button asChild variant="ghost" className="text-xs text-terracotta">
           <a href={assignment.route} target="_blank" rel="noopener noreferrer">
             View page
           </a>
