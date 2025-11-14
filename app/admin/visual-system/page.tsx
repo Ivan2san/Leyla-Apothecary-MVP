@@ -27,6 +27,8 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { IMAGE_DIMENSIONS } from "@/lib/visual/image-configs"
 import type { ProductImageSummary } from "@/types/admin-visual"
 import { getHeroAssignments } from "@/lib/visual/hero-config"
+import { DOCUMENTS } from "@/lib/docs/document-service"
+import { DocumentViewerPanel } from "@/components/admin/visual-system/document-viewer-panel"
 
 export const metadata = {
   title: "Visual System | Leyla's Apothecary Admin",
@@ -99,30 +101,6 @@ const maintenanceChecklist = [
   { label: "Annual", items: ["Professional photoshoot planning", "Palette review (requires approval)", "Renew stock photo licenses"] },
 ]
 
-const nextActions = [
-  {
-    title: "Sync Image Inventory",
-    description: "Upload MediHerb bottles, tag them, and keep Supabase in sync.",
-    icon: ImageIcon,
-    badge: (ready: number, total: number) => `${ready}/${total} ready`,
-    href: "#media-library",
-  },
-  {
-    title: "Wire Up Visual Helpers",
-    description: "Keep hero overlays + ProductImage helpers active in code.",
-    icon: RefreshCw,
-    badge: () => "Helpers live",
-    href: `${DOC_BASE}/docs/VISUAL_CONTENT_SYSTEM.md#hero-banner-system`,
-  },
-  {
-    title: "Document Component Usage",
-    description: "Ensure every visual component has annotated usage + screenshots.",
-    icon: BookOpenCheck,
-    badge: () => "Docs available",
-    href: "#documentation-hub",
-  },
-]
-
 const buttonClass =
   "inline-flex h-10 items-center justify-center rounded-md bg-sage px-4 font-semibold text-forest transition hover:bg-sage/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2"
 
@@ -155,10 +133,42 @@ export default async function AdminVisualSystemPage() {
   const needsLifestyle = productImageSummary.filter((product) => !product.hasLifestyle)
   const fallbackOnly = productImageSummary.filter((product) => product.fallbackOnly)
 
+  const skuReady = productImageSummary.filter((product) => product.hasPrimary).length
+  const skuCoverage = productImageSummary.length
+    ? Math.round((skuReady / productImageSummary.length) * 100)
+    : 0
+  const heroConfigured = heroAssignments.filter((assignment) => assignment.asset).length
+  const nextActions = [
+    {
+      title: "Sync Image Inventory",
+      description: "Upload MediHerb bottles, tag them, and keep Supabase in sync.",
+      icon: ImageIcon,
+      badge: `${skuReady}/${productImageSummary.length || 0} SKUs`,
+      href: "#media-library",
+      footer: `${missingPrimary.length} SKUs missing bottle shots`,
+    },
+    {
+      title: "Wire Up Visual Helpers",
+      description: "Keep hero overlays + ProductImage helpers configured.",
+      icon: RefreshCw,
+      badge: `${heroConfigured}/${heroAssignments.length} heroes`,
+      href: "#hero-assignments",
+      footer: `${heroAssignments.length - heroConfigured} heroes need updates`,
+    },
+    {
+      title: "Document Component Usage",
+      description: "Ensure every visual component has annotated usage + screenshots.",
+      icon: BookOpenCheck,
+      badge: `${DOCUMENTS.length} docs`,
+      href: "#documentation-hub",
+      footer: "Docs rendered below",
+    },
+  ]
+
   return (
     <div className="space-y-8">
       <section className="grid gap-6 lg:grid-cols-3">
-        {nextActions.map(({ title, description, icon: Icon, badge, href }) => (
+        {nextActions.map(({ title, description, icon: Icon, badge, href, footer }) => (
           <Card key={title} className="border-sage/40">
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
@@ -166,7 +176,7 @@ export default async function AdminVisualSystemPage() {
                 <CardDescription>{description}</CardDescription>
               </div>
               <Badge variant="secondary" className="bg-sage/15 text-forest">
-                {badge ? badge(inventoryStats.ready, inventoryStats.total) : "Active"}
+                {badge || "Active"}
               </Badge>
             </CardHeader>
             <CardContent>
@@ -181,53 +191,57 @@ export default async function AdminVisualSystemPage() {
                   </Link>
                 )}
               </div>
+              {footer && <p className="mt-2 text-xs text-forest/60">{footer}</p>}
             </CardContent>
           </Card>
         ))}
       </section>
 
-      <section id="documentation-hub" className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Documentation Hub</CardTitle>
-            <CardDescription>Quick links to the visual governance playbooks.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {docLinks.map((doc) => (
-              <div key={doc.title} className="rounded-lg border border-sage/30 p-4">
-                <p className="font-semibold text-forest">{doc.title}</p>
-                <p className="text-sm text-forest/70 mb-3">{doc.description}</p>
-                <Link className={buttonClass} href={doc.href} target="_blank">
-                  Open Documentation
-                </Link>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Maintenance Checklist</CardTitle>
-            <CardDescription>Lifted from VISUAL_CONTENT_IMPLEMENTATION.md.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {maintenanceChecklist.map((group) => (
-              <div key={group.label}>
-                <div className="mb-2 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-terracotta" />
-                  <p className="text-sm font-semibold uppercase tracking-wide text-forest/70">
-                    {group.label}
-                  </p>
+      <section id="documentation-hub" className="space-y-6">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Documentation Hub</CardTitle>
+              <CardDescription>Quick links to the visual governance playbooks.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {DOCUMENTS.map((doc) => (
+                <div key={doc.id} className="rounded-lg border border-sage/30 p-4">
+                  <p className="font-semibold text-forest">{doc.title}</p>
+                  <p className="text-sm text-forest/70 mb-3">{doc.description}</p>
+                  <Link className={buttonClass} href={doc.githubHref} target="_blank">
+                    Open in GitHub
+                  </Link>
                 </div>
-                <ul className="list-disc pl-6 text-sm text-forest/80 space-y-1">
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Maintenance Checklist</CardTitle>
+              <CardDescription>Lifted from VISUAL_CONTENT_IMPLEMENTATION.md.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {maintenanceChecklist.map((group) => (
+                <div key={group.label}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-terracotta" />
+                    <p className="text-sm font-semibold uppercase tracking-wide text-forest/70">
+                      {group.label}
+                    </p>
+                  </div>
+                  <ul className="list-disc pl-6 text-sm text-forest/80 space-y-1">
+                    {group.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+        <DocumentViewerPanel />
       </section>
 
       <section id="media-library">
@@ -242,7 +256,7 @@ export default async function AdminVisualSystemPage() {
         </Card>
       </section>
 
-      <section className="space-y-6">
+      <section id="hero-assignments" className="space-y-6">
         <HeroAssignmentEditor assignments={heroAssignments} />
         <OverlayLab heroIds={heroAssignments.map((assignment) => assignment.id)} />
       </section>
