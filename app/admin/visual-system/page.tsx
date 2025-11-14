@@ -19,12 +19,14 @@ import {
 } from "@/lib/visual/inventory"
 import { BRAND_COLORS, OVERLAY_STYLES } from "@/lib/visual/overlay-variants"
 import { AssetTable } from "@/components/admin/visual-system/asset-table"
-import { HeroAssignments } from "@/components/admin/visual-system/hero-assignments"
+import { HeroAssignmentEditor } from "@/components/admin/visual-system/hero-assignment-editor"
+import { OverlayLab } from "@/components/admin/visual-system/overlay-lab"
 import { MediaLibraryPanel } from "@/components/admin/visual-system/media-library-panel"
 import { ProductImageryDrawer } from "@/components/admin/visual-system/product-imagery-drawer"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { IMAGE_DIMENSIONS } from "@/lib/visual/image-configs"
 import type { ProductImageSummary } from "@/types/admin-visual"
+import { getHeroAssignments } from "@/lib/visual/hero-config"
 
 export const metadata = {
   title: "Visual System | Leyla's Apothecary Admin",
@@ -145,7 +147,10 @@ function renderDirectory(node: DirectoryNode): JSX.Element {
 }
 
 export default async function AdminVisualSystemPage() {
-  const productImageSummary = await getProductImageSummary()
+  const [productImageSummary, heroAssignments] = await Promise.all([
+    getProductImageSummary(),
+    getHeroAssignments(),
+  ])
   const missingPrimary = productImageSummary.filter((product) => !product.hasPrimary)
   const needsLifestyle = productImageSummary.filter((product) => !product.hasLifestyle)
   const fallbackOnly = productImageSummary.filter((product) => product.fallbackOnly)
@@ -237,16 +242,9 @@ export default async function AdminVisualSystemPage() {
         </Card>
       </section>
 
-      <section>
-        <Card>
-          <CardHeader>
-            <CardTitle>Hero Assignments</CardTitle>
-            <CardDescription>Active imagery powering each page — swap assets by updating lib/visual/inventory.ts.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HeroAssignments />
-          </CardContent>
-        </Card>
+      <section className="space-y-6">
+        <HeroAssignmentEditor assignments={heroAssignments} />
+        <OverlayLab heroIds={heroAssignments.map((assignment) => assignment.id)} />
       </section>
 
       <section id="sku-imagery" className="grid gap-6 lg:grid-cols-3">

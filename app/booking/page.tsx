@@ -1,14 +1,14 @@
 import { HeroBanner } from "@/components/ui/hero-banner"
 import { BookingForm } from "@/components/booking/BookingForm"
-import { getRecommendedAsset } from "@/lib/visual/inventory"
+import { getHeroAsset } from "@/lib/visual/hero-config"
 
 export const metadata = {
   title: 'Book a Consultation | Leyla\'s Apothecary',
   description: 'Schedule a personalized naturopathy consultation with Leyla. Choose from initial, follow-up, or quick consultations.',
 }
 
-export default function BookingPage() {
-  const heroAsset = getRecommendedAsset("hero-booking-greenhouse")
+export default async function BookingPage() {
+  const heroAsset = await getHeroAsset("booking")
 
   return (
     <div className="flex flex-col">
@@ -17,12 +17,12 @@ export default function BookingPage() {
         title="Book Your Consultation"
         subtitle="Natural Health Guidance"
         description="Schedule a personalized consultation to discuss your health goals and receive expert naturopathic care"
-        imageSrc={heroAsset?.desktopSrc ?? "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2940"}
-        mobileImageSrc={heroAsset?.mobileSrc}
+        imageSrc={heroAsset.desktopSrc ?? "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2940"}
+        mobileImageSrc={heroAsset.mobileSrc}
         imageAlt="Peaceful consultation space with natural elements"
         height="medium"
         textAlign="center"
-        overlay={heroAsset?.overlay ?? "forest-gradient"}
+        overlay={heroAsset.overlay}
         withTexture
       />
 

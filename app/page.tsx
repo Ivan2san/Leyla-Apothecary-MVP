@@ -3,10 +3,10 @@ import { HeroBanner } from "@/components/ui/hero-banner"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { NewsletterSignup } from "@/components/marketing/newsletter-signup"
-import { getRecommendedAsset } from "@/lib/visual/inventory"
+import { getHeroAsset } from "@/lib/visual/hero-config"
 
-export default function Home() {
-  const heroAsset = getRecommendedAsset("hero-home-spring")
+export default async function Home() {
+  const heroAsset = await getHeroAsset("home")
 
   return (
     <div className="flex flex-col">
@@ -15,8 +15,8 @@ export default function Home() {
         title="Natural Wellness, Personalized"
         subtitle="Welcome to Leyla's Apothecary"
         description="Premium herbal tinctures and custom compounds crafted with expertise and care"
-        imageSrc={heroAsset?.desktopSrc ?? "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2940"}
-        mobileImageSrc={heroAsset?.mobileSrc}
+        imageSrc={heroAsset.desktopSrc ?? "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=2940"}
+        mobileImageSrc={heroAsset.mobileSrc}
         imageAlt="Herbal medicine bottles and fresh herbs"
         primaryCTA={{
           text: "Shop Tinctures",
@@ -28,7 +28,7 @@ export default function Home() {
         }}
         height="large"
         textAlign="center"
-        overlay={heroAsset?.overlay ?? "sage-gradient"}
+        overlay={heroAsset.overlay}
         withTexture
       />
 

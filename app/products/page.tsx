@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ProductCard } from "@/components/products/product-card"
 import { Product } from "@/types"
 import { HeroBanner } from "@/components/ui/hero-banner"
-import { getRecommendedAsset } from "@/lib/visual/inventory"
+import { getHeroAsset } from "@/lib/visual/hero-config"
 
 export const metadata = {
   title: "Herbal Tinctures - Leyla's Apothecary",
@@ -44,11 +44,11 @@ async function getCategories() {
 }
 
 export default async function ProductsPage() {
-  const [products, categories] = await Promise.all([
+  const [products, categories, heroAsset] = await Promise.all([
     getProducts(),
-    getCategories()
+    getCategories(),
+    getHeroAsset("products"),
   ])
-  const heroAsset = getRecommendedAsset("hero-products-collection")
 
   return (
     <div className="flex flex-col">
@@ -57,12 +57,12 @@ export default async function ProductsPage() {
         title="Premium Herbal Tinctures"
         subtitle="Shop Our Collection"
         description="Discover high-quality herbal extracts, carefully crafted for your wellness journey"
-        imageSrc={heroAsset?.desktopSrc ?? "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=2940"}
-        mobileImageSrc={heroAsset?.mobileSrc}
+        imageSrc={heroAsset.desktopSrc ?? "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=2940"}
+        mobileImageSrc={heroAsset.mobileSrc}
         imageAlt="Collection of herbal tincture bottles"
         height="medium"
         textAlign="center"
-        overlay={heroAsset?.overlay ?? "terracotta-gradient"}
+        overlay={heroAsset.overlay}
         withTexture
       />
 
