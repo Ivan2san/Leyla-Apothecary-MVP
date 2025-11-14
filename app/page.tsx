@@ -24,7 +24,8 @@ export default function Home() {
         }}
         height="large"
         textAlign="center"
-        overlay="gradient"
+        overlay="sage-gradient"
+        withTexture
       />
 
       {/* Features Section */}

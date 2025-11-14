@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { BookingService } from '@/lib/services/booking.service'
 import { getAvailableSlotsSchema } from '@/lib/validations/bookings'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
