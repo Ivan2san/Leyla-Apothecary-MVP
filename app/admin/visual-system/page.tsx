@@ -20,23 +20,15 @@ import {
 import { BRAND_COLORS, OVERLAY_STYLES } from "@/lib/visual/overlay-variants"
 import { AssetTable } from "@/components/admin/visual-system/asset-table"
 import { HeroAssignments } from "@/components/admin/visual-system/hero-assignments"
+import { MediaLibraryPanel } from "@/components/admin/visual-system/media-library-panel"
+import { ProductImageryDrawer } from "@/components/admin/visual-system/product-imagery-drawer"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { IMAGE_DIMENSIONS } from "@/lib/visual/image-configs"
+import type { ProductImageSummary } from "@/types/admin-visual"
 
 export const metadata = {
   title: "Visual System | Leyla's Apothecary Admin",
   description: "Track documentation and maintenance tasks for the visual content system.",
-}
-
-type ProductImageSummary = {
-  id: string
-  name: string
-  slug: string
-  category: string
-  hasPrimary: boolean
-  hasLifestyle: boolean
-  fallbackOnly: boolean
-  imageCount: number
 }
 
 async function getProductImageSummary(): Promise<ProductImageSummary[]> {
@@ -74,25 +66,27 @@ async function getProductImageSummary(): Promise<ProductImageSummary[]> {
   })
 }
 
+const DOC_BASE = "https://github.com/Ivan2san/Leyla-Apothecary-MVP/blob/main"
+
 const docLinks = [
   {
     title: "Visual Content System Architecture",
-    href: "/docs/VISUAL_CONTENT_SYSTEM.md",
+    href: `${DOC_BASE}/docs/VISUAL_CONTENT_SYSTEM.md`,
     description: "Source of truth for overlays, asset naming, and component guidelines.",
   },
   {
     title: "Visual Content Implementation Guide",
-    href: "/docs/VISUAL_CONTENT_IMPLEMENTATION.md",
+    href: `${DOC_BASE}/docs/VISUAL_CONTENT_IMPLEMENTATION.md`,
     description: "Step-by-step instructions for building and maintaining the system.",
   },
   {
     title: "Photography Guide",
-    href: "/docs/Leylas_Apothecary_Image_Photography_Guide.md",
+    href: `${DOC_BASE}/docs/Leylas_Apothecary_Image_Photography_Guide.md`,
     description: "Composition, staging, and editing guidelines for brand imagery.",
   },
   {
     title: "Brand Color System",
-    href: "/docs/BRAND_COLOR_SYSTEM.md",
+    href: `${DOC_BASE}/docs/BRAND_COLOR_SYSTEM.md`,
     description: "Immutable palette references for all experiences.",
   },
 ]
@@ -106,18 +100,24 @@ const maintenanceChecklist = [
 const nextActions = [
   {
     title: "Sync Image Inventory",
-    description: "Populate the spreadsheet/database that tracks filenames, usage, and license info for every asset.",
+    description: "Upload MediHerb bottles, tag them, and keep Supabase in sync.",
     icon: ImageIcon,
+    badge: (ready: number, total: number) => `${ready}/${total} ready`,
+    href: "#media-library",
   },
   {
     title: "Wire Up Visual Helpers",
-    description: "Implement `lib/visual/*` utilities (image configs, overlays, performance monitors) described in the docs.",
+    description: "Keep hero overlays + ProductImage helpers active in code.",
     icon: RefreshCw,
+    badge: () => "Helpers live",
+    href: `${DOC_BASE}/docs/VISUAL_CONTENT_SYSTEM.md#hero-banner-system`,
   },
   {
     title: "Document Component Usage",
-    description: "Add README snippets for hero/product components that showcase how overlays, ratios, and color locks work.",
+    description: "Ensure every visual component has annotated usage + screenshots.",
     icon: BookOpenCheck,
+    badge: () => "Docs available",
+    href: "#documentation-hub",
   },
 ]
 
@@ -153,7 +153,7 @@ export default async function AdminVisualSystemPage() {
   return (
     <div className="space-y-8">
       <section className="grid gap-6 lg:grid-cols-3">
-        {nextActions.map(({ title, description, icon: Icon }) => (
+        {nextActions.map(({ title, description, icon: Icon, badge, href }) => (
           <Card key={title} className="border-sage/40">
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
@@ -161,17 +161,27 @@ export default async function AdminVisualSystemPage() {
                 <CardDescription>{description}</CardDescription>
               </div>
               <Badge variant="secondary" className="bg-sage/15 text-forest">
-                In Progress
+                {badge ? badge(inventoryStats.ready, inventoryStats.total) : "Active"}
               </Badge>
             </CardHeader>
             <CardContent>
-              <Icon className="h-10 w-10 text-sage" />
+              <div className="flex items-center justify-between">
+                <Icon className="h-10 w-10 text-sage" />
+                {href && (
+                  <Link
+                    href={href}
+                    className="text-sm font-semibold text-terracotta hover:underline"
+                  >
+                    View
+                  </Link>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
+      <section id="documentation-hub" className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Documentation Hub</CardTitle>
@@ -215,6 +225,19 @@ export default async function AdminVisualSystemPage() {
         </Card>
       </section>
 
+      <section id="media-library">
+        <Card>
+          <CardHeader>
+            <CardTitle>Media Library</CardTitle>
+            <CardDescription>Upload and browse MediHerb bottle imagery stored in Supabase.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* @ts-expect-error Async Server Component */}
+            <MediaLibraryPanel />
+          </CardContent>
+        </Card>
+      </section>
+
       <section>
         <Card>
           <CardHeader>
@@ -227,7 +250,7 @@ export default async function AdminVisualSystemPage() {
         </Card>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section id="sku-imagery" className="grid gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Product Bottle Coverage</CardTitle>
@@ -259,7 +282,7 @@ export default async function AdminVisualSystemPage() {
               <CardDescription>Bottle angles inspired by Herbal Extract Company (MediHerb) dispensary line.</CardDescription>
             </div>
             <Button asChild variant="outline">
-              <Link href="/docs/VISUAL_CONTENT_SYSTEM.md#image-procurement-workflow" target="_blank">
+              <Link href={`${DOC_BASE}/docs/Leylas_Apothecary_Image_Photography_Guide.md#image-procurement-workflow`} target="_blank">
                 View Photography Guide
               </Link>
             </Button>
@@ -338,22 +361,12 @@ export default async function AdminVisualSystemPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-2">
+                          <ProductImageryDrawer product={product} />
                           <Button asChild size="sm" variant="outline" className="text-xs">
                             <Link href={`/admin/products?focus=${product.slug}`}>Edit product</Link>
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-xs text-terracotta"
-                            asChild
-                          >
-                            <a
-                              href="https://app.supabase.com"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Open storage
-                            </a>
+                          <Button size="sm" variant="ghost" className="text-xs">
+                            <Link href="#media-library">Upload image</Link>
                           </Button>
                         </div>
                       </td>

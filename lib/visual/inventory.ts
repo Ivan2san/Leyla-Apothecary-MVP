@@ -13,6 +13,7 @@ export interface ImageInventoryItem {
   status: InventoryStatus
   optimized: boolean
   lastUpdated: string
+  publicUrl?: string
 }
 
 export const IMAGE_INVENTORY: ImageInventoryItem[] = [
@@ -51,6 +52,7 @@ export const IMAGE_INVENTORY: ImageInventoryItem[] = [
     status: "ready",
     optimized: true,
     lastUpdated: "2025-01-25",
+    publicUrl: "/images/products/tinctures/2025-01-22_product_tincture_lavender-calm_primary_v3.webp",
   },
   {
     id: "product-lavender-lifestyle",
@@ -63,6 +65,7 @@ export const IMAGE_INVENTORY: ImageInventoryItem[] = [
     status: "pending-license",
     optimized: false,
     lastUpdated: "2025-01-22",
+     publicUrl: "/images/products/lifestyle/2025-01-22_product_tincture_lavender-calm_lifestyle_v1.webp",
   },
   {
     id: "lifestyle-workbench",
