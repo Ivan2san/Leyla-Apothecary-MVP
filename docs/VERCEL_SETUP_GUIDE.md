@@ -81,6 +81,7 @@ bash scripts/setup-vercel-env.sh
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development | From .env.local |
    | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview, Development | From .env.local |
    | `ADMIN_EMAIL` | Production, Preview, Development | Admin Supabase email |
+   | `NEXT_PUBLIC_ADMIN_EMAIL` | Production, Preview, Development | Same as `ADMIN_EMAIL` so the navbar knows who is an admin |
    | `E2E_ADMIN_EMAIL` | (Optional) QA environments only | Admin login for Playwright |
    | `E2E_ADMIN_PASSWORD` | (Optional) QA environments only | Admin password for Playwright |
    | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Production, Preview, Development | From .env.local |
@@ -105,6 +106,8 @@ bash scripts/setup-vercel-env.sh
 
 4. For `NEXT_PUBLIC_API_URL` in Production:
    - Use your Vercel domain + /api (e.g., `https://leylas-apothecary-mvp.vercel.app/api`)
+
+5. After setting the admin email variables, run `node scripts/ensure-admin-role.mjs` locally (with your `.env.local` loaded) to guarantee the Supabase admin user has the correct `role` metadata and profile entry before deploying.
 
 #### Method 4: Using Vercel CLI (One by one)
 
