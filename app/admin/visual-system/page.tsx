@@ -232,7 +232,6 @@ export default async function AdminVisualSystemPage() {
             <CardDescription>Upload and browse MediHerb bottle imagery stored in Supabase.</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* @ts-expect-error Async Server Component */}
             <MediaLibraryPanel />
           </CardContent>
         </Card>
