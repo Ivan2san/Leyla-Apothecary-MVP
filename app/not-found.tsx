@@ -1,6 +1,8 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
+
+const baseButton =
+  "inline-flex items-center justify-center rounded-md font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
 
 export default function NotFound() {
   return (
@@ -17,15 +19,17 @@ export default function NotFound() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/">
-            <Button>
-              Go Home
-            </Button>
+          <Link
+            href="/"
+            className={`${baseButton} bg-sage text-forest hover:bg-sage/90`}
+          >
+            Go Home
           </Link>
-          <Link href="/products">
-            <Button variant="outline">
-              Browse Products
-            </Button>
+          <Link
+            href="/products"
+            className={`${baseButton} border-2 border-sage text-forest bg-transparent hover:bg-sage/10`}
+          >
+            Browse Products
           </Link>
         </div>
       </div>

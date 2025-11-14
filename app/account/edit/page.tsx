@@ -1,13 +1,15 @@
 import Link from "next/link"
 import { requireAuth, getUserProfile } from "@/lib/auth/auth-helpers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AlertTriangle } from "lucide-react"
 
 export const metadata = {
   title: "Edit Profile | Leyla's Apothecary",
 }
+
+const baseButton =
+  "inline-flex items-center justify-center rounded-md font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
 
 export default async function EditProfilePage() {
   const user = await requireAuth()
@@ -34,7 +36,10 @@ export default async function EditProfilePage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
-                className={cn(buttonVariants(), "flex-1 text-center")}
+                className={cn(
+                  baseButton,
+                  "bg-sage text-forest hover:bg-sage/90 flex-1 text-center"
+                )}
                 href="mailto:support@leylasapothecary.com?subject=Profile%20Update%20Request"
               >
                 Contact Support
@@ -42,8 +47,8 @@ export default async function EditProfilePage() {
               <Link
                 href="/account"
                 className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "flex-1 text-center"
+                  baseButton,
+                  "border-2 border-sage text-forest bg-transparent hover:bg-sage/10 flex-1 text-center"
                 )}
               >
                 Back to Account
