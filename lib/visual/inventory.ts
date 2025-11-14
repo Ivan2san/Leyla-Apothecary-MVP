@@ -1,3 +1,5 @@
+import type { BrandOverlayVariant } from "@/lib/visual/overlay-variants"
+
 export type InventoryStatus = "ready" | "needs-optimization" | "pending-license"
 
 export interface ImageInventoryItem {
@@ -77,32 +79,45 @@ export const IMAGE_INVENTORY: ImageInventoryItem[] = [
 ]
 
 export interface RecommendedAsset {
+  id: string
   title: string
   description: string
   desktopSrc: string
   mobileSrc?: string
-  overlay: string
+  overlay: BrandOverlayVariant
   priority: "hero" | "product" | "lifestyle"
 }
 
 export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
   {
+    id: "hero-home-spring",
     title: "Spring Ritual Hero",
     description: "Seasonal hero for homepage featuring morning sunlight + steam.",
-    desktopSrc: "/images/heroes/homepage/2025-02-10_hero_homepage_spring-ritual_sage-overlay_v1.webp",
-    mobileSrc: "/images/heroes/homepage/2025-02-10_hero_homepage_spring-ritual_sage-overlay_mobile_v1.webp",
+    desktopSrc: "https://images.unsplash.com/photo-1505253758473-96b7015fcd40?q=80&w=2940",
+    mobileSrc: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?q=80&w=1600",
     overlay: "sage-gradient",
     priority: "hero",
   },
   {
+    id: "hero-booking-greenhouse",
     title: "Booking Greenhouse Hero",
     description: "Focus shot of Leyla reviewing charts in the greenhouse studio.",
-    desktopSrc: "/images/heroes/booking/2025-02-05_hero_booking_greenhouse-focus_forest-gradient_v1.webp",
-    mobileSrc: "/images/heroes/booking/2025-02-05_hero_booking_greenhouse-focus_forest-gradient_mobile_v1.webp",
+    desktopSrc: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2940",
+    mobileSrc: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1600",
     overlay: "forest-gradient",
     priority: "hero",
   },
   {
+    id: "hero-products-collection",
+    title: "Products Collection Hero",
+    description: "Studio line-up of tinctures and botanicals for the catalog page.",
+    desktopSrc: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=2940",
+    mobileSrc: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600",
+    overlay: "terracotta-gradient",
+    priority: "hero",
+  },
+  {
+    id: "product-lavender-lifestyle",
     title: "Lavender Calm Lifestyle",
     description: "Hands cradling the tincture over linen — perfect card hover asset.",
     desktopSrc: "/images/products/tinctures/2025-01-22_product_tincture_lavender-calm_lifestyle_v1.webp",
@@ -110,6 +125,7 @@ export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
     priority: "product",
   },
   {
+    id: "lifestyle-workbench",
     title: "Workbench Process Shot",
     description: "Macro botanicals + tools for educational content headers.",
     desktopSrc: "/images/lifestyle/workspace/2025-01-30_lifestyle_workspace_herbal-workbench_mobile_v1.webp",
@@ -117,6 +133,9 @@ export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
     priority: "lifestyle",
   },
 ]
+
+export const getRecommendedAsset = (id: string) =>
+  RECOMMENDED_ASSETS.find((asset) => asset.id === id)
 
 export interface DirectoryNode {
   name: string

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { ProductCard } from "@/components/products/product-card"
 import { Product } from "@/types"
 import { HeroBanner } from "@/components/ui/hero-banner"
+import { getRecommendedAsset } from "@/lib/visual/inventory"
 
 export const metadata = {
   title: "Herbal Tinctures - Leyla's Apothecary",
@@ -47,6 +48,7 @@ export default async function ProductsPage() {
     getProducts(),
     getCategories()
   ])
+  const heroAsset = getRecommendedAsset("hero-products-collection")
 
   return (
     <div className="flex flex-col">
@@ -55,11 +57,12 @@ export default async function ProductsPage() {
         title="Premium Herbal Tinctures"
         subtitle="Shop Our Collection"
         description="Discover high-quality herbal extracts, carefully crafted for your wellness journey"
-        imageSrc="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=2940"
+        imageSrc={heroAsset?.desktopSrc ?? "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=2940"}
+        mobileImageSrc={heroAsset?.mobileSrc}
         imageAlt="Collection of herbal tincture bottles"
         height="medium"
         textAlign="center"
-        overlay="terracotta-gradient"
+        overlay={heroAsset?.overlay ?? "terracotta-gradient"}
         withTexture
       />
 
