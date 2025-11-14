@@ -50,6 +50,8 @@ If the above doesn't work:
 
 You need to add all environment variables from your `.env.local` file to Vercel.
 
+> ⚠️ **Production login relies on these values.** Set `NEXT_PUBLIC_APP_URL=https://leylas-apothecary-mvp.vercel.app` and `NEXT_PUBLIC_API_URL=https://leylas-apothecary-mvp.vercel.app/api` so Supabase magic links redirect to the deployed site (see `docs/SUPABASE_AUTH_SETUP.md`).
+
 #### Method 1: Using PowerShell Script (Fastest)
 
 ```powershell
