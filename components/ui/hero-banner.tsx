@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { BrandOverlayVariant } from "@/lib/visual/overlay-variants"
 import { OVERLAY_STYLES, MOBILE_OVERLAY_STYLES, TEXTURE_OVERLAY } from "@/lib/visual/overlay-variants"
+import { useMediaQuery } from "@/lib/hooks/use-media-query"
 
 interface HeroBannerProps {
   title: string
   subtitle?: string
   description?: string
   imageSrc: string
+  mobileImageSrc?: string
   imageAlt: string
   primaryCTA?: {
     text: string
@@ -34,6 +36,7 @@ export function HeroBanner({
   subtitle,
   description,
   imageSrc,
+  mobileImageSrc,
   imageAlt,
   primaryCTA,
   secondaryCTA,
@@ -44,6 +47,7 @@ export function HeroBanner({
   withTexture = false,
   className,
 }: HeroBannerProps) {
+  const isMobile = useMediaQuery("(max-width: 768px)")
   const heightClasses = {
     small: "h-[300px]",
     medium: "h-[400px] md:h-[500px]",
@@ -51,7 +55,9 @@ export function HeroBanner({
     full: "min-h-screen",
   }
 
-  const legacyOverlayClasses = {
+  type LegacyOverlay = "light" | "dark" | "gradient"
+
+  const legacyOverlayClasses: Record<LegacyOverlay, string> = {
     light: "bg-white/60",
     dark: "bg-black/60",
     gradient: "bg-gradient-to-b from-black/40 via-black/30 to-black/50",
@@ -76,16 +82,18 @@ export function HeroBanner({
   const getOverlayStyle = () => {
     if (overlay === "none") return undefined
 
-    // Handle legacy overlay types (for backward compatibility)
     if (overlay === "light" || overlay === "dark" || overlay === "gradient") {
-      return undefined // Use className instead
+      return undefined
     }
 
-    // Handle brand overlays
+    const styles = isMobile ? MOBILE_OVERLAY_STYLES : OVERLAY_STYLES
     return {
-      background: OVERLAY_STYLES[overlay as BrandOverlayVariant],
+      background: styles[overlay as BrandOverlayVariant],
     }
   }
+
+  const resolvedImageSrc =
+    mobileImageSrc && isMobile ? mobileImageSrc : imageSrc
 
   return (
     <section
@@ -98,7 +106,7 @@ export function HeroBanner({
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src={imageSrc}
+          src={resolvedImageSrc}
           alt={imageAlt}
           fill
           priority
@@ -114,23 +122,12 @@ export function HeroBanner({
             <div
               className={cn(
                 "absolute inset-0",
-                // Use legacy overlay classes if applicable
                 overlay === "light" || overlay === "dark" || overlay === "gradient"
-                  ? legacyOverlayClasses[overlay as keyof typeof legacyOverlayClasses]
+                  ? legacyOverlayClasses[overlay]
                   : ""
               )}
               style={getOverlayStyle()}
-            >
-              {/* Mobile-specific overlay (higher opacity) */}
-              <div
-                className="absolute inset-0 md:hidden"
-                style={
-                  overlay !== "light" && overlay !== "dark" && overlay !== "gradient"
-                    ? { background: MOBILE_OVERLAY_STYLES[overlay as BrandOverlayVariant] }
-                    : undefined
-                }
-              />
-            </div>
+            />
 
             {/* Optional Texture Overlay */}
             {withTexture && (
