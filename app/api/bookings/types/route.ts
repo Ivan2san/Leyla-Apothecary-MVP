@@ -6,6 +6,8 @@
 import { NextResponse } from 'next/server'
 import { BookingService } from '@/lib/services/booking.service'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const bookingTypes = await BookingService.getBookingTypes()
