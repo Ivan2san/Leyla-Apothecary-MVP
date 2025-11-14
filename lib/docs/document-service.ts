@@ -28,6 +28,20 @@ export const DOCUMENTS: DocumentDefinition[] = [
     githubHref: `${REPO_BASE}/docs/VISUAL_CONTENT_IMPLEMENTATION.md`,
   },
   {
+    id: "visual-operations",
+    title: "Visual Content Operations & Governance",
+    description: "Supabase buckets, hero assignment workflow, and runbook checklists.",
+    file: "VISUAL_CONTENT_OPERATIONS.md",
+    githubHref: `${REPO_BASE}/docs/VISUAL_CONTENT_OPERATIONS.md`,
+  },
+  {
+    id: "visual-simplification",
+    title: "Visual System Simplification Plan",
+    description: "Temporary focus on hero uploads and product/protocol imagery while other modules are inactive.",
+    file: "VISUAL_SYSTEM_SIMPLIFICATION_PLAN.md",
+    githubHref: `${REPO_BASE}/docs/VISUAL_SYSTEM_SIMPLIFICATION_PLAN.md`,
+  },
+  {
     id: "photography-guide",
     title: "Photography Guide",
     description: "H.E.C./MediHerb bottle style and staging requirements.",

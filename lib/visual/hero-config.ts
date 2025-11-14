@@ -63,7 +63,19 @@ export async function saveHeroAssignmentRecords(records: HeroAssignmentRecord[])
 
 export async function loadHeroAssignmentRecords(): Promise<HeroAssignmentRecord[]> {
   const stored = await loadStoredAssignments()
-  return stored ?? HERO_ASSIGNMENTS
+  if (stored) {
+    return stored
+  }
+
+  return HERO_ASSIGNMENTS.map((assignment) => ({
+    id: assignment.id,
+    page: assignment.page,
+    route: assignment.route,
+    description: assignment.description,
+    assetId: assignment.assetId,
+    mobileAssetId: assignment.mobileAssetId ?? null,
+    overlay: assignment.overlay ?? HERO_ASSET_MAP[assignment.assetId]?.overlay ?? 'sage-gradient',
+  }))
 }
 
 export async function getHeroAssignments(): Promise<HeroAssignmentWithAsset[]> {

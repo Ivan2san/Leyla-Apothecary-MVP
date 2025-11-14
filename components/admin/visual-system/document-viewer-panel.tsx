@@ -2,13 +2,13 @@ import { DocumentViewerClient } from "@/components/admin/visual-system/document-
 import { DOCUMENTS, getDocumentContent } from "@/lib/docs/document-service"
 
 export async function DocumentViewerPanel() {
-  const initialDoc = DOCUMENTS[0]
-  const initialContent = await getDocumentContent(initialDoc.id)
+  const preferredDoc = DOCUMENTS.find((doc) => doc.id === "visual-simplification") ?? DOCUMENTS[0]
+  const initialContent = await getDocumentContent(preferredDoc.id)
 
   return (
     <DocumentViewerClient
       documents={DOCUMENTS}
-      initialDocId={initialDoc.id}
+      initialDocId={preferredDoc.id}
       initialContent={initialContent}
     />
   )

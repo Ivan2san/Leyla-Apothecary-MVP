@@ -96,8 +96,8 @@ export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
     id: "hero-home-spring",
     title: "Spring Ritual Hero",
     description: "Seasonal hero for homepage featuring morning sunlight + steam.",
-    desktopSrc: "https://images.unsplash.com/photo-1505253758473-96b7015fcd40?q=80&w=2940",
-    mobileSrc: "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?q=80&w=1600",
+    desktopSrc: "https://plus.unsplash.com/premium_photo-1675127366476-98e3f3acca8a?q=80&w=790",
+    mobileSrc: "https://plus.unsplash.com/premium_photo-1675127366476-98e3f3acca8a?q=80&w=790",
     overlay: "sage-gradient",
     priority: "hero",
   },
@@ -105,8 +105,8 @@ export const RECOMMENDED_ASSETS: RecommendedAsset[] = [
     id: "hero-booking-greenhouse",
     title: "Booking Greenhouse Hero",
     description: "Focus shot of Leyla reviewing charts in the greenhouse studio.",
-    desktopSrc: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2940",
-    mobileSrc: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1600",
+    desktopSrc: "https://plus.unsplash.com/premium_photo-1675127366476-98e3f3acca8a?q=80&w=790",
+    mobileSrc: "https://plus.unsplash.com/premium_photo-1675127366476-98e3f3acca8a?q=80&w=790",
     overlay: "forest-gradient",
     priority: "hero",
   },
@@ -147,7 +147,7 @@ export interface HeroAssignment {
   description: string
   assetId: string
   mobileAssetId?: string | null
-  overlay: BrandOverlayVariant
+  overlay?: BrandOverlayVariant
 }
 
 export const HERO_ASSIGNMENTS: HeroAssignment[] = [

@@ -1,30 +1,14 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import {
-  AlertTriangle,
-  BookOpenCheck,
-  Image as ImageIcon,
-  Layers,
-  Palette,
-  RefreshCw,
-} from "lucide-react"
-import {
-  IMAGE_INVENTORY,
-  RECOMMENDED_ASSETS,
-  VISUAL_DIRECTORY_TREE,
-  type DirectoryNode,
-} from "@/lib/visual/inventory"
-import { BRAND_COLORS, OVERLAY_STYLES } from "@/lib/visual/overlay-variants"
+import { AlertTriangle, Image as ImageIcon, LayoutTemplate } from "lucide-react"
 import { AssetTable } from "@/components/admin/visual-system/asset-table"
 import { HeroAssignmentEditor } from "@/components/admin/visual-system/hero-assignment-editor"
-import { OverlayLab } from "@/components/admin/visual-system/overlay-lab"
 import { MediaLibraryPanel } from "@/components/admin/visual-system/media-library-panel"
 import { ProductImageryDrawer } from "@/components/admin/visual-system/product-imagery-drawer"
 import { createServiceRoleClient } from "@/lib/supabase/service-role"
 import { IMAGE_DIMENSIONS } from "@/lib/visual/image-configs"
+import { IMAGE_INVENTORY } from "@/lib/visual/inventory"
 import type { ProductImageSummary } from "@/types/admin-visual"
 import { getHeroAssignments } from "@/lib/visual/hero-config"
 import { DOCUMENTS } from "@/lib/docs/document-service"
@@ -32,7 +16,7 @@ import { DocumentViewerPanel } from "@/components/admin/visual-system/document-v
 
 export const metadata = {
   title: "Visual System | Leyla's Apothecary Admin",
-  description: "Track documentation and maintenance tasks for the visual content system.",
+  description: "Operational console for the hero + product image focus work.",
 }
 
 async function getProductImageSummary(): Promise<ProductImageSummary[]> {
@@ -53,8 +37,8 @@ async function getProductImageSummary(): Promise<ProductImageSummary[]> {
     const hasPrimary = imagesArray.some(
       (img: any) => img?.type === "primary" && typeof img.url === "string" && img.url.length > 0
     )
-    const hasLifestyle = imagesArray.some(
-      (img: any) => img?.type === "lifestyle" && typeof img.url === "string" && img.url.length > 0
+    const hasProtocol = imagesArray.some(
+      (img: any) => img?.type === "protocol" && typeof img.url === "string" && img.url.length > 0
     )
 
     return {
@@ -63,259 +47,235 @@ async function getProductImageSummary(): Promise<ProductImageSummary[]> {
       slug: product.slug,
       category: product.category,
       hasPrimary,
-      hasLifestyle,
+      hasLifestyle: hasProtocol,
       fallbackOnly: !hasPrimary && Boolean(product.image_url),
       imageCount: imagesArray.length,
     }
   })
 }
 
-const DOC_BASE = "https://github.com/Ivan2san/Leyla-Apothecary-MVP/blob/main"
-
-const docLinks = [
-  {
-    title: "Visual Content System Architecture",
-    href: `${DOC_BASE}/docs/VISUAL_CONTENT_SYSTEM.md`,
-    description: "Source of truth for overlays, asset naming, and component guidelines.",
-  },
-  {
-    title: "Visual Content Implementation Guide",
-    href: `${DOC_BASE}/docs/VISUAL_CONTENT_IMPLEMENTATION.md`,
-    description: "Step-by-step instructions for building and maintaining the system.",
-  },
-  {
-    title: "Photography Guide",
-    href: `${DOC_BASE}/docs/Leylas_Apothecary_Image_Photography_Guide.md`,
-    description: "Composition, staging, and editing guidelines for brand imagery.",
-  },
-  {
-    title: "Brand Color System",
-    href: `${DOC_BASE}/docs/BRAND_COLOR_SYSTEM.md`,
-    description: "Immutable palette references for all experiences.",
-  },
-]
-
-const maintenanceChecklist = [
-  { label: "Monthly", items: ["Run image performance audit", "Rotate seasonal hero imagery", "Verify alt text + accessibility"] },
-  { label: "Quarterly", items: ["Full visual brand QA", "Review Unsplash/licensed assets", "Update overlay variants"] },
-  { label: "Annual", items: ["Professional photoshoot planning", "Palette review (requires approval)", "Renew stock photo licenses"] },
-]
-
-const buttonClass =
-  "inline-flex h-10 items-center justify-center rounded-md bg-sage px-4 font-semibold text-forest transition hover:bg-sage/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2"
-
-const inventoryStats = {
-  total: IMAGE_INVENTORY.length,
-  ready: IMAGE_INVENTORY.filter((item) => item.status === "ready").length,
-  needsOptimization: IMAGE_INVENTORY.filter((item) => item.status === "needs-optimization").length,
-  pendingLicense: IMAGE_INVENTORY.filter((item) => item.status === "pending-license").length,
-}
-
-function renderDirectory(node: DirectoryNode): JSX.Element {
-  return (
-    <li key={node.name}>
-      <span className="font-mono text-sm text-forest">{node.name}</span>
-      {node.children && (
-        <ul className="ml-4 border-l border-sage/40 pl-4 mt-2 space-y-1">
-          {node.children.map((child) => renderDirectory(child))}
-        </ul>
-      )}
-    </li>
-  )
-}
+const simplificationDoc = DOCUMENTS.find((doc) => doc.id === "visual-simplification")
 
 export default async function AdminVisualSystemPage() {
   const [productImageSummary, heroAssignments] = await Promise.all([
     getProductImageSummary(),
     getHeroAssignments(),
   ])
-  const missingPrimary = productImageSummary.filter((product) => !product.hasPrimary)
-  const needsLifestyle = productImageSummary.filter((product) => !product.hasLifestyle)
-  const fallbackOnly = productImageSummary.filter((product) => product.fallbackOnly)
+
+  const heroConfigured = heroAssignments.filter((assignment) => assignment.asset).length
+  const heroCoverage = heroAssignments.length
+    ? Math.round((heroConfigured / heroAssignments.length) * 100)
+    : 0
 
   const skuReady = productImageSummary.filter((product) => product.hasPrimary).length
   const skuCoverage = productImageSummary.length
     ? Math.round((skuReady / productImageSummary.length) * 100)
     : 0
-  const heroConfigured = heroAssignments.filter((assignment) => assignment.asset).length
-  const nextActions = [
-    {
-      title: "Sync Image Inventory",
-      description: "Upload MediHerb bottles, tag them, and keep Supabase in sync.",
-      icon: ImageIcon,
-      badge: `${skuReady}/${productImageSummary.length || 0} SKUs`,
-      href: "#media-library",
-      footer: `${missingPrimary.length} SKUs missing bottle shots`,
-    },
-    {
-      title: "Wire Up Visual Helpers",
-      description: "Keep hero overlays + ProductImage helpers configured.",
-      icon: RefreshCw,
-      badge: `${heroConfigured}/${heroAssignments.length} heroes`,
-      href: "#hero-assignments",
-      footer: `${heroAssignments.length - heroConfigured} heroes need updates`,
-    },
-    {
-      title: "Document Component Usage",
-      description: "Ensure every visual component has annotated usage + screenshots.",
-      icon: BookOpenCheck,
-      badge: `${DOCUMENTS.length} docs`,
-      href: "#documentation-hub",
-      footer: "Docs rendered below",
-    },
-  ]
+
+  const missingPrimary = productImageSummary.filter((product) => !product.hasPrimary)
+  const needsProtocol = productImageSummary.filter((product) => !product.hasLifestyle)
+  const fallbackOnly = productImageSummary.filter((product) => product.fallbackOnly)
+
+  const inventoryStats = {
+    total: IMAGE_INVENTORY.length,
+    ready: IMAGE_INVENTORY.filter((item) => item.status === "ready").length,
+    needsOptimization: IMAGE_INVENTORY.filter((item) => item.status === "needs-optimization").length,
+    pendingLicense: IMAGE_INVENTORY.filter((item) => item.status === "pending-license").length,
+  }
 
   return (
     <div className="space-y-8">
-      <section className="grid gap-6 lg:grid-cols-3">
-        {nextActions.map(({ title, description, icon: Icon, badge, href, footer }) => (
-          <Card key={title} className="border-sage/40">
-            <CardHeader className="flex flex-row items-start justify-between">
-              <div>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-              </div>
-              <Badge variant="secondary" className="bg-sage/15 text-forest">
-                {badge || "Active"}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <Icon className="h-10 w-10 text-sage" />
-                {href && (
-                  <Link
-                    href={href}
-                    className="text-sm font-semibold text-terracotta hover:underline"
-                  >
-                    View
-                  </Link>
-                )}
-              </div>
-              {footer && <p className="mt-2 text-xs text-forest/60">{footer}</p>}
-            </CardContent>
-          </Card>
-        ))}
+      <Card className="border-terracotta/40 bg-terracotta/5">
+        <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <CardTitle>Visual Simplification Mode</CardTitle>
+            <CardDescription>
+              All effort is directed at hero imagery and product/protocol assets. Every other visual
+              module is paused until these flows ship.
+            </CardDescription>
+          </div>
+          {simplificationDoc && (
+            <Button asChild variant="outline">
+              <Link href={simplificationDoc.githubHref} target="_blank" rel="noopener noreferrer">
+                View Plan
+              </Link>
+            </Button>
+          )}
+        </CardHeader>
+      </Card>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Hero Sections</CardTitle>
+              <CardDescription>Upload, assign, and recolor hero imagery per section.</CardDescription>
+            </div>
+            <LayoutTemplate className="h-10 w-10 text-sage" />
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4 text-sm text-forest/70">
+            <div>
+              <p className="text-3xl font-bold text-forest">{heroConfigured}</p>
+              <p>Configured heroes</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-forest">{heroCoverage}%</p>
+              <p>Coverage</p>
+            </div>
+            <div>
+              <p className="text-sm">
+                Maintain desktop + mobile images per section. Only designer-approved palette tokens
+                should be selectable for overlays.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Product & Protocol Imagery</CardTitle>
+              <CardDescription>Ensure every SKU has a bottle shot plus an optional protocol photo.</CardDescription>
+            </div>
+            <ImageIcon className="h-10 w-10 text-sage" />
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4 text-sm text-forest/70">
+            <div>
+              <p className="text-3xl font-bold text-forest">{skuReady}</p>
+              <p>SKUs ready</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold text-forest">{skuCoverage}%</p>
+              <p>Coverage</p>
+            </div>
+            <div className="col-span-2 text-xs">
+              {missingPrimary.length} SKUs missing primary bottle imagery · {needsProtocol.length} needs
+              protocol/lifestyle shots · {fallbackOnly.length} relying on legacy `image_url`.
+            </div>
+          </CardContent>
+        </Card>
       </section>
 
-      <section id="documentation-hub" className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Documentation Hub</CardTitle>
-              <CardDescription>Quick links to the visual governance playbooks.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {DOCUMENTS.map((doc) => (
-                <div key={doc.id} className="rounded-lg border border-sage/30 p-4">
-                  <p className="font-semibold text-forest">{doc.title}</p>
-                  <p className="text-sm text-forest/70 mb-3">{doc.description}</p>
-                  <Link className={buttonClass} href={doc.githubHref} target="_blank">
-                    Open in GitHub
-                  </Link>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+      <section id="hero-images" className="space-y-6">
+        <Card>
+          <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle>Hero Image Workflow</CardTitle>
+              <CardDescription>
+                Upload in Supabase, record assignments below, and use only the simplified palette
+                variants.
+              </CardDescription>
+            </div>
+            <Link
+              href="#media-library"
+              className="text-sm font-semibold text-terracotta hover:underline"
+            >
+              Jump to uploads
+            </Link>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-forest/70">
+            <p className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-terracotta" />
+              Remove references to paused modules (overlay lab, marketing galleries) until phase 2.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>Store assets in the `visual-config` + `product-images` Supabase buckets only.</li>
+              <li>Each hero expects desktop + optional mobile URLs plus the approved overlay token.</li>
+              <li>Document every change in the simplification plan for weekly review.</li>
+            </ul>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Maintenance Checklist</CardTitle>
-              <CardDescription>Lifted from VISUAL_CONTENT_IMPLEMENTATION.md.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {maintenanceChecklist.map((group) => (
-                <div key={group.label}>
-                  <div className="mb-2 flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-terracotta" />
-                    <p className="text-sm font-semibold uppercase tracking-wide text-forest/70">
-                      {group.label}
-                    </p>
-                  </div>
-                  <ul className="list-disc pl-6 text-sm text-forest/80 space-y-1">
-                    {group.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-        <DocumentViewerPanel />
+        <HeroAssignmentEditor assignments={heroAssignments} />
       </section>
 
-      <section id="media-library">
+      <section id="product-images" className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Media Library</CardTitle>
-            <CardDescription>Upload and browse MediHerb bottle imagery stored in Supabase.</CardDescription>
+            <CardTitle>Product & Protocol Workflow</CardTitle>
+            <CardDescription>
+              Upload → assign → delete directly from the curated inventory. Protocol images share the
+              same buckets as product bottles.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-forest/70">
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                Primary bottles: deliver {IMAGE_DIMENSIONS.product.main.width}x
+                {IMAGE_DIMENSIONS.product.main.height}px WebP (&lt;200KB).
+              </li>
+              <li>Protocols: square crop preferred, mark `type: "protocol"` in JSON payload.</li>
+              <li>Deleting an asset removes Supabase storage + detaches from the SKU record.</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card id="media-library">
+          <CardHeader>
+            <CardTitle>Image Uploads</CardTitle>
+            <CardDescription>Direct interface to the `product-images` bucket.</CardDescription>
           </CardHeader>
           <CardContent>
             <MediaLibraryPanel />
           </CardContent>
         </Card>
-      </section>
 
-      <section id="hero-assignments" className="space-y-6">
-        <HeroAssignmentEditor assignments={heroAssignments} />
-        <OverlayLab heroIds={heroAssignments.map((assignment) => assignment.id)} />
-      </section>
+        <section className="grid gap-6 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Coverage</CardTitle>
+              <CardDescription>
+                Focus on bottle shots first, then protocol/lifestyle imagery.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-3xl font-bold text-forest">{productImageSummary.length}</p>
+                <p className="text-forest/60">Total SKUs</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-terracotta">{missingPrimary.length}</p>
+                <p className="text-forest/60">Missing bottle</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-yellow-700">{needsProtocol.length}</p>
+                <p className="text-forest/60">Need protocol shot</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-orange-700">{fallbackOnly.length}</p>
+                <p className="text-forest/60">Using legacy URL</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="lg:col-span-2">
+            <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <CardTitle>Upload Checklist</CardTitle>
+                <CardDescription>Applies to both bottle shots and protocol imagery.</CardDescription>
+              </div>
+              {simplificationDoc && (
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`${simplificationDoc.githubHref}#scope-b--product--protocol-images`} target="_blank">
+                    View scope
+                  </Link>
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc space-y-2 pl-5 text-sm text-forest/80">
+                <li>Match the naming convention to avoid mismatches when selecting from inventory.</li>
+                <li>Immediately register uploaded files in each product’s `images` JSON array.</li>
+                <li>Use `ProductImageryDrawer` below to delete or set the active asset per SKU.</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
 
-      <section id="sku-imagery" className="grid gap-6 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Product Bottle Coverage</CardTitle>
-            <CardDescription>Every SKU must have an H.E.C./MediHerb-style bottle image.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-3xl font-bold text-forest">{productImageSummary.length}</p>
-              <p className="text-forest/60">Total SKUs</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-orange-700">{missingPrimary.length}</p>
-              <p className="text-forest/60">Missing bottle photo</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-yellow-700">{needsLifestyle.length}</p>
-              <p className="text-forest/60">Need lifestyle image</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-terracotta">{fallbackOnly.length}</p>
-              <p className="text-forest/60">Using legacy image_url</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <CardTitle>Product Imagery Checklist</CardTitle>
-              <CardDescription>Bottle angles inspired by Herbal Extract Company (MediHerb) dispensary line.</CardDescription>
-            </div>
-            <Button asChild variant="outline">
-              <Link href={`${DOC_BASE}/docs/Leylas_Apothecary_Image_Photography_Guide.md#image-procurement-workflow`} target="_blank">
-                View Photography Guide
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc space-y-2 pl-5 text-sm text-forest/80">
-              <li>Use 30ml amber bottle with gold cap, label centered, soft studio lighting.</li>
-              <li>Shoot on neutral warm backdrop; keep foreground props minimal and botanical.</li>
-              <li>Deliver {IMAGE_DIMENSIONS.product.main.width}x{IMAGE_DIMENSIONS.product.main.height}px WebP, max 200KB.</li>
-              <li>Name files with the established convention (date_category_subcategory_description_variant_v1).</li>
-              <li>Upload to <code className="rounded bg-sage/20 px-1">public/images/products/tinctures</code> and register the asset in Supabase.</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>SKU Imagery Status</CardTitle>
-              <CardDescription>Filter, search, and quickly jump into the product editor.</CardDescription>
+              <CardDescription>Filter, upload, and assign assets per SKU.</CardDescription>
             </div>
             <Button asChild>
               <Link href="/admin/products">Go to Product Manager</Link>
@@ -329,7 +289,7 @@ export default async function AdminVisualSystemPage() {
                     <th className="px-4 py-2 font-semibold">Product</th>
                     <th className="px-4 py-2 font-semibold">Category</th>
                     <th className="px-4 py-2 font-semibold">Primary Bottle</th>
-                    <th className="px-4 py-2 font-semibold">Lifestyle Image</th>
+                    <th className="px-4 py-2 font-semibold">Protocol Image</th>
                     <th className="px-4 py-2 font-semibold">Images</th>
                     <th className="px-4 py-2 font-semibold">Actions</th>
                   </tr>
@@ -388,130 +348,57 @@ export default async function AdminVisualSystemPage() {
             </div>
           </CardContent>
         </Card>
+
+        <section className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Inventory Summary</CardTitle>
+                <CardDescription>Only assets relevant to hero + product scopes are tracked.</CardDescription>
+              </div>
+              <ImageIcon className="h-8 w-8 text-sage" />
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-3xl font-bold text-forest">{inventoryStats.total}</p>
+                <p className="text-forest/60">Tracked files</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-green-700">{inventoryStats.ready}</p>
+                <p className="text-forest/60">Ready to use</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-yellow-700">{inventoryStats.needsOptimization}</p>
+                <p className="text-forest/60">Need optimization</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-orange-700">{inventoryStats.pendingLicense}</p>
+                <p className="text-forest/60">Pending license</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Image Inventory</CardTitle>
+              <CardDescription>
+                Review metadata and pick assets directly when wiring products or hero entries.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AssetTable inventory={IMAGE_INVENTORY} />
+            </CardContent>
+          </Card>
+        </section>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section id="documentation" className="space-y-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Inventory Summary</CardTitle>
-              <CardDescription>Derived from lib/visual/inventory.ts.</CardDescription>
-            </div>
-            <Layers className="h-8 w-8 text-sage" />
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-3xl font-bold text-forest">{inventoryStats.total}</p>
-              <p className="text-forest/60">Tracked files</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-green-700">{inventoryStats.ready}</p>
-              <p className="text-forest/60">Ready to publish</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-yellow-700">{inventoryStats.needsOptimization}</p>
-              <p className="text-forest/60">Need optimization</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-orange-700">{inventoryStats.pendingLicense}</p>
-              <p className="text-forest/60">Pending license</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Image Inventory</CardTitle>
-            <CardDescription>Matches the metadata schema documented in the Visual Content System.</CardDescription>
+            <CardTitle>Documentation Hub</CardTitle>
+            <CardDescription>Reference the simplification plan and supporting guides.</CardDescription>
           </CardHeader>
           <CardContent>
-            <AssetTable inventory={IMAGE_INVENTORY} />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recommended Assets</CardTitle>
-            <CardDescription>Next batch of imagery to source + wire into components.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {RECOMMENDED_ASSETS.map((asset) => (
-              <div key={asset.title} className="rounded-lg border border-sage/30 p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold text-forest">{asset.title}</p>
-                  <Badge variant="secondary" className="bg-sage/15 text-forest capitalize">
-                    {asset.priority}
-                  </Badge>
-                </div>
-                <p className="text-sm text-forest/70">{asset.description}</p>
-                <p className="text-xs font-mono text-forest/70 break-words">
-                  Desktop: {asset.desktopSrc}
-                  {asset.mobileSrc && (
-                    <>
-                      <br />
-                      Mobile: {asset.mobileSrc}
-                    </>
-                  )}
-                </p>
-                <p className="text-xs text-forest/60">Overlay: {asset.overlay}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Overlay + Palette</CardTitle>
-              <CardDescription>Brand references for component teams.</CardDescription>
-            </div>
-            <Palette className="h-8 w-8 text-sage" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <p className="text-sm font-semibold text-forest mb-2">Brand Colors</p>
-              <div className="grid grid-cols-2 gap-3">
-                {Object.entries(BRAND_COLORS).map(([name, hex]) => (
-                  <div key={name} className="rounded-lg border border-sage/30 p-3 flex items-center gap-3">
-                    <span
-                      className="h-8 w-8 rounded-full border border-white/70 shadow-inner"
-                      style={{ backgroundColor: hex }}
-                    />
-                    <div>
-                      <p className="text-sm font-semibold capitalize text-forest">{name}</p>
-                      <p className="font-mono text-xs text-forest/70">{hex}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-forest mb-2">Overlay Variants</p>
-              <div className="grid gap-2">
-                {Object.entries(OVERLAY_STYLES).map(([variant, gradient]) => (
-                  <div key={variant} className="rounded-lg border border-sage/30 p-3 space-y-2">
-                    <p className="text-sm font-semibold text-forest">{variant}</p>
-                    <div className="h-10 w-full rounded-md border border-white/30" style={{ background: gradient }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
-        <Card>
-          <CardHeader>
-            <CardTitle>Directory Structure</CardTitle>
-            <CardDescription>Mirrors the taxonomy in docs/VISUAL_CONTENT_SYSTEM.md.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {VISUAL_DIRECTORY_TREE.map((node) => renderDirectory(node))}
-            </ul>
+            <DocumentViewerPanel />
           </CardContent>
         </Card>
       </section>
