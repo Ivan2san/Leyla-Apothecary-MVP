@@ -92,11 +92,11 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-3 w-full">
-          <Link href={`/products/${product.slug}`} className="block">
-            <Button variant="outline" className="w-full h-10">
+          <Button variant="outline" className="w-full h-10" asChild>
+            <Link href={`/products/${product.slug}`}>
               View Details
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <Button
             className="w-full h-10"
             disabled={product.stock_quantity === 0}
