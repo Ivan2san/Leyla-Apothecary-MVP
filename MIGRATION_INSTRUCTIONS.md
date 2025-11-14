@@ -53,3 +53,23 @@ Once successfully applied, you can delete:
 ### Testing:
 
 After applying the migration, test by placing an order through the checkout flow. The order should be created successfully with an auto-generated order number.
+
+---
+
+## Newsletter Subscription Policy
+
+The `newsletter_subscribers` table ships with Row Level Security enabled, which blocks anonymous inserts by default. To allow public signups (required for `/api/newsletter`), run the following SQL in Supabase:
+
+```sql
+DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON newsletter_subscribers;
+
+CREATE POLICY "Anyone can subscribe to newsletter"
+  ON newsletter_subscribers
+  FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+```
+
+1. Open Supabase Dashboard → **SQL Editor**
+2. Run the snippet above
+3. Verify that POST `/api/newsletter` no longer returns a 500/RLS error

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🚀 Running full governance checks before push..."
+RUN_GOVERNANCE_HEAVY=1 npm run gov:validate

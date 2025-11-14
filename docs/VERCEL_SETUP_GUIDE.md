@@ -80,6 +80,9 @@ bash scripts/setup-vercel-env.sh
    | `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview, Development | From .env.local |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview, Development | From .env.local |
    | `SUPABASE_SERVICE_ROLE_KEY` | Production, Preview, Development | From .env.local |
+   | `ADMIN_EMAIL` | Production, Preview, Development | Admin Supabase email |
+   | `E2E_ADMIN_EMAIL` | (Optional) QA environments only | Admin login for Playwright |
+   | `E2E_ADMIN_PASSWORD` | (Optional) QA environments only | Admin password for Playwright |
    | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Production, Preview, Development | From .env.local |
    | `STRIPE_SECRET_KEY` | Production only | From .env.local |
    | `STRIPE_WEBHOOK_SECRET` | Production only | From .env.local |

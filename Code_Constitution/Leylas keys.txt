@@ -1,0 +1,11 @@
+$env:NEXT_PUBLIC_SUPABASE_URL = "https://ivpsqihvuipnzjpghdaa.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cHNxaWh2dWlwbnpqcGdoZGFhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mjg3MTE1OCwiZXhwIjoyMDc4NDQ3MTU4fQ.WJ7PYpT32dWwxTLx3Kjo-SpI8fflRNXryIr5DbFsIVA"
+$env:E2E_ADMIN_EMAIL = "ivan2san@gmail.com"
+$env:E2E_ADMIN_PASSWORD = "Elperrodesanroque@74"
+
+WSL
+
+export NEXT_PUBLIC_SUPABASE_URL="https://ivpsqihvuipnzjpghdaa.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2cHNxaWh2dWlwbnpqcGdoZGFhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Mjg3MTE1OCwiZXhwIjoyMDc4NDQ3MTU4fQ.WJ7PYpT32dWwxTLx3Kjo-SpI8fflRNXryIr5DbFsIVA"
+export E2E_ADMIN_EMAIL="ivan2san@gmail.com"
+export E2E_ADMIN_PASSWORD="Elperrodesanroque@74"

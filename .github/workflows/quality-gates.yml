@@ -1,5 +1,8 @@
 name: Quality Gates
 
+env:
+  RUN_GOVERNANCE_HEAVY: 1
+
 on:
   pull_request:
     branches: [main, develop]

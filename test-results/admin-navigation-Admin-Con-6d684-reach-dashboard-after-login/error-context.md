@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Leyla's Apothecary" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]: Leyla's Apothecary
+        - navigation [ref=e7]:
+          - link "Products" [ref=e8] [cursor=pointer]:
+            - /url: /products
+          - link "Book Consultation" [ref=e9] [cursor=pointer]:
+            - /url: /booking
+          - link "Custom Compounds" [ref=e10] [cursor=pointer]:
+            - /url: /compounds
+          - link "About" [ref=e11] [cursor=pointer]:
+            - /url: /about
+        - generic [ref=e12]:
+          - button [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button [disabled]:
+            - img
+    - main [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: Leyla's Apothecary
+            - heading "Admin Console" [level=1] [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - paragraph [ref=e27]: E2E Admin
+              - paragraph [ref=e28]: ivan2san@gmail.com
+            - button "Sign Out" [ref=e30] [cursor=pointer]
+        - main [ref=e31]:
+          - navigation [ref=e32]:
+            - link "Overview" [ref=e33] [cursor=pointer]:
+              - /url: /admin
+            - link "Products" [ref=e34] [cursor=pointer]:
+              - /url: /admin/products
+            - link "Orders" [ref=e35] [cursor=pointer]:
+              - /url: /admin/orders
+            - link "Bookings" [ref=e36] [cursor=pointer]:
+              - /url: /admin/bookings
+            - link "Analytics" [ref=e37] [cursor=pointer]:
+              - /url: /admin/analytics
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - heading "Total Revenue" [level=3] [ref=e42]
+                - generic [ref=e43]:
+                  - paragraph [ref=e44]: $117.78
+                  - paragraph [ref=e45]: Lifetime revenue
+              - generic [ref=e46]:
+                - heading "Orders" [level=3] [ref=e48]
+                - generic [ref=e49]:
+                  - paragraph [ref=e50]: "2"
+                  - paragraph [ref=e51]: 2 open orders
+              - generic [ref=e52]:
+                - heading "Average Order Value" [level=3] [ref=e54]
+                - generic [ref=e55]:
+                  - paragraph [ref=e56]: $58.89
+                  - paragraph [ref=e57]: Past 2 orders
+              - generic [ref=e58]:
+                - heading "Low Stock" [level=3] [ref=e60]
+                - generic [ref=e61]:
+                  - paragraph [ref=e62]: "0"
+                  - paragraph [ref=e63]: Products below 10 units
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - heading "Recent Orders" [level=3] [ref=e67]
+                - generic [ref=e68]:
+                  - generic [ref=e69]:
+                    - generic [ref=e70]:
+                      - paragraph [ref=e71]: $58.89
+                      - paragraph [ref=e72]: Nov 12, 2025 · BURRADOO
+                    - generic [ref=e73]: pending
+                  - generic [ref=e74]:
+                    - generic [ref=e75]:
+                      - paragraph [ref=e76]: $58.89
+                      - paragraph [ref=e77]: Nov 12, 2025 · BURRADOO
+                    - generic [ref=e78]: pending
+              - generic [ref=e79]:
+                - heading "Low Inventory" [level=3] [ref=e81]
+                - paragraph [ref=e83]: All products have healthy inventory.
+            - generic [ref=e84]:
+              - heading "Top Products" [level=3] [ref=e86]
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]:
+                    - paragraph [ref=e90]: Hawthorn Berry Tincture
+                    - paragraph [ref=e91]: 1 units sold
+                  - paragraph [ref=e92]: $26.99
+                - generic [ref=e93]:
+                  - generic [ref=e94]:
+                    - paragraph [ref=e95]: Fennel Seed Tincture
+                    - paragraph [ref=e96]: 1 units sold
+                  - paragraph [ref=e97]: $21.99
+    - contentinfo [ref=e98]:
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - heading "Leyla's Apothecary" [level=3] [ref=e102]
+            - paragraph [ref=e103]: Premium herbal tinctures and personalized wellness solutions.
+          - generic [ref=e104]:
+            - heading "Shop" [level=4] [ref=e105]
+            - list [ref=e106]:
+              - listitem [ref=e107]:
+                - link "All Products" [ref=e108] [cursor=pointer]:
+                  - /url: /products
+              - listitem [ref=e109]:
+                - link "Digestive Health" [ref=e110] [cursor=pointer]:
+                  - /url: /products?category=digestive
+              - listitem [ref=e111]:
+                - link "Immune Support" [ref=e112] [cursor=pointer]:
+                  - /url: /products?category=immune
+              - listitem [ref=e113]:
+                - link "Custom Compounds" [ref=e114] [cursor=pointer]:
+                  - /url: /compounds
+          - generic [ref=e115]:
+            - heading "Services" [level=4] [ref=e116]
+            - list [ref=e117]:
+              - listitem [ref=e118]:
+                - link "Book Consultation" [ref=e119] [cursor=pointer]:
+                  - /url: /booking
+              - listitem [ref=e120]:
+                - link "About Leyla" [ref=e121] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e122]:
+                - link "FAQ" [ref=e123] [cursor=pointer]:
+                  - /url: /faq
+          - generic [ref=e124]:
+            - heading "Legal" [level=4] [ref=e125]
+            - list [ref=e126]:
+              - listitem [ref=e127]:
+                - link "Privacy Policy" [ref=e128] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e129]:
+                - link "Terms of Service" [ref=e130] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e131]:
+                - link "Shipping & Returns" [ref=e132] [cursor=pointer]:
+                  - /url: /shipping
+              - listitem [ref=e133]:
+                - link "Contact Us" [ref=e134] [cursor=pointer]:
+                  - /url: /contact
+        - generic [ref=e135]:
+          - paragraph [ref=e136]: © 2025 Leyla's Apothecary. All rights reserved.
+          - paragraph [ref=e137]: "*These statements have not been evaluated by the TGA. These products are not intended to diagnose, treat, cure or prevent any disease."
+  - alert [ref=e138]
+```

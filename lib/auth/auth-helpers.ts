@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 
 export async function getUser() {
   const supabase = await createClient()
@@ -38,4 +39,26 @@ export async function getUserProfile(userId: string) {
   }
 
   return data
+}
+
+export function isAdminUser(user: User | null) {
+  if (!user) return false
+
+  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
+  if (adminEmail && user.email?.toLowerCase() === adminEmail) {
+    return true
+  }
+
+  const role = user.user_metadata?.role?.toString().toLowerCase()
+  return role === 'admin' || role === 'superadmin'
+}
+
+export async function requireAdmin() {
+  const user = await requireAuth()
+
+  if (!isAdminUser(user)) {
+    redirect('/')
+  }
+
+  return user
 }
