@@ -36,10 +36,24 @@ echo "https://leylas-apothecary-mvp.vercel.app/api" | \
 
 Or set them manually in the Vercel dashboard (Project → Settings → Environment Variables). Redeploy afterward so the new values land in the build.
 
-## 4. Verify
+## 4. Seed or Reset the Admin User
+
+Keep the canonical admin account (`ivan@culturecrunch.io`) in sync with Supabase using the helper script:
+
+```bash
+# Update .env.local with:
+# ADMIN_EMAIL=ivan@culturecrunch.io
+# NEXT_PUBLIC_ADMIN_EMAIL=ivan@culturecrunch.io
+# ADMIN_PASSWORD=<<the password you want testers to use>>
+node scripts/set-admin-password.mjs
+```
+
+The script will create-or-update the user, set the password, enforce `role: admin`, and upsert the matching profile row. Share the `ADMIN_PASSWORD` value only with trusted testers.
+
+## 5. Verify
 
 1. Trigger a fresh deployment (`git push origin main`).
-2. Visit the production site and request a login link using one of the admin emails (`ivan2san@gmail.com` or `ivan@culturecrunch.io`).
+2. Visit the production site and request a login link using the admin email (`ivan@culturecrunch.io`) and the password you configured.
 3. Open the email and confirm that the link opens on `https://leylas-apothecary-mvp.vercel.app` and completes the session without the `otp_expired` error.
 
 Document the completion in `COMPLETION_SUMMARY.md` (Production checklist) so we know the environment has been fully configured.

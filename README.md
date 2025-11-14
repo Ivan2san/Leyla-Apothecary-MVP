@@ -63,6 +63,7 @@ Then edit `.env.local` with your actual credentials:
 2. Run the database migrations (see `docs/` for SQL schema)
 3. Copy your project URL and anon key to `.env.local`
 4. Follow `docs/SUPABASE_AUTH_SETUP.md` to configure the Site URL + redirect list so production magic links land on Vercel (otherwise logins will fail with `otp_expired`).
+5. Use `node scripts/set-admin-password.mjs` any time you need to create/reset the canonical admin account for testers.
 
 ### Stripe Setup
 
