@@ -204,7 +204,7 @@ export default async function AdminVisualSystemPage() {
                 Primary bottles: deliver {IMAGE_DIMENSIONS.product.main.width}x
                 {IMAGE_DIMENSIONS.product.main.height}px WebP (&lt;200KB).
               </li>
-              <li>Protocols: square crop preferred, mark `type: "protocol"` in JSON payload.</li>
+              <li>Protocols: square crop preferred, mark the JSON payload with <code>type: protocol</code>.</li>
               <li>Deleting an asset removes Supabase storage + detaches from the SKU record.</li>
             </ul>
           </CardContent>
