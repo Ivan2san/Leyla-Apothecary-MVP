@@ -28,11 +28,12 @@ These files are in production and must NEVER be modified without explicit writte
 
 ### Database Migrations (CRITICAL - DATA INTEGRITY)
 ```
-❌ supabase/migrations/*
+⚠️ supabase/migrations/*
 ❌ supabase/seed.sql
 ❌ prisma/schema.prisma
 ❌ lib/db/schema.ts
 ```
+> ⚠️ NOTE: Database migrations are permitted for the current wellness-package workstream, but every change must be reviewed carefully.
 
 ### Environment Configuration
 ```

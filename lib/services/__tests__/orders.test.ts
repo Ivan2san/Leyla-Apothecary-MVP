@@ -422,7 +422,7 @@ describe('OrderService', () => {
       const result = await OrderService.getOrder('order-123')
 
       expect(mockSupabase.from).toHaveBeenCalledWith('orders')
-      expect(queryChain.select).toHaveBeenCalledWith('*, order_items(*, products(*))')
+      expect(queryChain.select).toHaveBeenCalledWith('*, order_items(*, products(*), compounds(*))')
       expect(queryChain.eq).toHaveBeenCalledWith('id', 'order-123')
       expect(queryChain.single).toHaveBeenCalled()
       expect(result).toEqual(mockOrder)
@@ -462,7 +462,7 @@ describe('OrderService', () => {
       const result = await OrderService.getUserOrders('user-123')
 
       expect(mockSupabase.from).toHaveBeenCalledWith('orders')
-      expect(queryChain.select).toHaveBeenCalledWith('*, order_items(*, products(*))')
+      expect(queryChain.select).toHaveBeenCalledWith('*, order_items(*, products(*), compounds(*))')
       expect(queryChain.eq).toHaveBeenCalledWith('user_id', 'user-123')
       expect(queryChain.order).toHaveBeenCalledWith('created_at', { ascending: false })
       expect(result).toEqual(mockOrders)
