@@ -49,7 +49,11 @@ export async function POST(request: NextRequest) {
 
           const items =
             fullOrder.order_items?.map((item: any) => ({
-              name: item.products?.name ?? 'Herbal Tincture',
+              name:
+                item.products?.name ??
+                item.compounds?.name ??
+                item.compound_snapshot?.name ??
+                'Custom Blend',
               quantity: item.quantity,
               unitPrice: item.price,
             })) ?? []

@@ -6,6 +6,7 @@ import { formatPrice, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Package, User as UserIcon, LogOut } from "lucide-react"
 import { signOut } from "@/lib/auth/actions"
+import { WellnessPackageService } from "@/lib/services/wellness-packages"
 
 async function handleSignOut() {
   "use server"
@@ -30,10 +31,30 @@ async function getOrders(userId: string) {
   return data
 }
 
+async function getOligoscanAssessments(userId: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('assessments')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('type', 'oligoscan_v1')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching Oligoscan assessments:', error)
+    return []
+  }
+
+  return data ?? []
+}
+
 export default async function AccountPage() {
   const user = await requireAuth()
   const profile = await getUserProfile(user.id)
   const orders = await getOrders(user.id)
+  const enrolments = await WellnessPackageService.getEnrolmentsForUser(user.id)
+  const oligoscanAssessments = await getOligoscanAssessments(user.id)
 
   return (
     <div className="container py-12">
@@ -128,6 +149,189 @@ export default async function AccountPage() {
             </Card>
           </div>
         </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Assessments</CardTitle>
+            <CardDescription>Oligoscan results and practitioner notes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {oligoscanAssessments.length === 0 ? (
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>No assessment results yet.</p>
+                <Link href="/oligoscan-testing" className="text-terracotta underline">
+                  Learn about Oligoscan testing
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {oligoscanAssessments.map((assessment) => {
+                  const responses = (assessment.responses as any) || {}
+                  const keyFindings =
+                    Array.isArray(responses.keyFindings) &&
+                    responses.keyFindings.every((finding: unknown) => typeof finding === 'string')
+                      ? (responses.keyFindings as string[]).slice(0, 3)
+                      : []
+                  const categories = responses.categories || {}
+
+                  return (
+                    <div key={assessment.id} className="rounded-lg border border-sage/30 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-forest">Oligoscan assessment</p>
+                          <p className="text-sm text-muted-foreground">
+                            {formatDate(assessment.created_at, 'long')}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Overall score
+                          </p>
+                          <p className="text-2xl font-bold text-terracotta">
+                            {assessment.score?.toFixed(1) ?? '—'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+                          Key findings
+                        </p>
+                        <ul className="list-disc pl-5 text-sm text-forest/80">
+                          {keyFindings.length === 0 && <li>Recorded findings unavailable.</li>}
+                          {keyFindings.map((finding) => (
+                            <li key={finding}>{finding}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <details className="mt-4 rounded-md border border-sage/30 bg-muted/30 p-3 text-sm text-forest/80">
+                        <summary className="cursor-pointer font-medium text-forest">
+                          View practitioner summary
+                        </summary>
+                        <p className="mt-2">{responses.summary || 'No summary provided.'}</p>
+                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                              Minerals
+                            </p>
+                            <p className="font-semibold">
+                              {categories.minerals?.status?.replace(/_/g, ' ') ?? '—'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {categories.minerals?.notes ?? ''}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                              Heavy metals
+                            </p>
+                            <p className="font-semibold">
+                              {categories.heavyMetals?.status?.replace(/_/g, ' ') ?? '—'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {categories.heavyMetals?.notes ?? ''}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                              Vitamins
+                            </p>
+                            <p className="font-semibold">
+                              {categories.vitamins?.status?.replace(/_/g, ' ') ?? '—'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {categories.vitamins?.notes ?? ''}
+                            </p>
+                          </div>
+                        </div>
+                      </details>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Packages */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>My Programs & Packages</CardTitle>
+            <CardDescription>Track your enrolments and remaining credits</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {enrolments.length === 0 ? (
+              <div className="text-center space-y-4 py-6">
+                <p className="text-sm text-muted-foreground">
+                  No active packages yet.
+                </p>
+                <Link href="/wellness/deep-reset">
+                  <Button variant="outline">Explore Deep Reset</Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {enrolments.map((enrolment) => {
+                  const credits = enrolment.session_credits || {}
+                  return (
+                    <div key={enrolment.id} className="rounded-lg border border-muted p-4">
+                      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <p className="font-semibold">
+                            {enrolment.wellness_packages?.name ?? 'Wellness Package'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Started {formatDate(enrolment.started_at ?? enrolment.created_at, 'long')}
+                          </p>
+                        </div>
+                        <span
+                          className={`text-xs uppercase tracking-wide ${
+                            enrolment.status === 'active'
+                              ? 'text-green-600'
+                              : enrolment.status === 'completed'
+                              ? 'text-forest'
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          {enrolment.status}
+                        </span>
+                      </div>
+                      <div className="mt-4 overflow-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-left text-muted-foreground">
+                              <th className="py-2">Session type</th>
+                              <th className="py-2">Included</th>
+                              <th className="py-2">Used</th>
+                              <th className="py-2">Remaining</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(credits).map(([type, entry]) => {
+                              const remaining = Math.max(0, entry.included - entry.used)
+                              return (
+                                <tr key={type} className="border-t">
+                                  <td className="py-2 capitalize">{type.replace(/_/g, ' ')}</td>
+                                  <td className="py-2">{entry.included}</td>
+                                  <td className="py-2">{entry.used}</td>
+                                  <td className="py-2">{remaining}</td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                      <Link href="/booking">
+                        <Button variant="outline" size="sm" className="mt-4">
+                          Book remaining sessions
+                        </Button>
+                      </Link>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Order History */}
         <Card>

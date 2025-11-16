@@ -5,14 +5,16 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type {
+  AvailabilitySlot,
+  BlockedDate,
   Booking,
   BookingType,
   BookingTypeConfig,
   BookingWithDetails,
+  OligoscanBiometrics,
   TimeSlot,
-  BlockedDate,
-  AvailabilitySlot,
 } from '@/lib/types/booking.types'
+import { WellnessPackageService } from '@/lib/services/wellness-packages'
 
 export class BookingService {
   /**
@@ -110,9 +112,16 @@ export class BookingService {
     type: BookingType,
     date: string,
     time: string,
-    notes?: string
+    notes?: string,
+    biometrics?: OligoscanBiometrics,
+    options?: {
+      usePackageCredit?: boolean
+      packageEnrolmentId?: string
+    }
   ): Promise<Booking> {
     const supabase = await createClient()
+    const usePackageCredit = options?.usePackageCredit === true
+    const packageEnrolmentId = options?.packageEnrolmentId ?? null
 
     // Get booking type config for price and duration
     const typeConfig = await this.getBookingType(type)
@@ -130,28 +139,66 @@ export class BookingService {
       throw new Error('Selected time slot is not available')
     }
 
-    // Create the booking
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert({
-        user_id: userId,
-        type,
-        date,
-        time,
-        duration_minutes: typeConfig.duration_minutes,
-        price: typeConfig.price,
-        status: 'scheduled',
-        notes: notes || null,
-      })
-      .select()
-      .single()
+    const metadata =
+      type === 'oligoscan_assessment'
+        ? {
+            biometrics: biometrics || null,
+          }
+        : null
 
-    if (error) {
-      console.error('Error creating booking:', error)
-      throw new Error('Failed to create booking')
+    if (type === 'oligoscan_assessment' && !metadata?.biometrics) {
+      throw new Error('Oligoscan biometrics are required')
     }
 
-    return data
+    if (usePackageCredit && !packageEnrolmentId) {
+      throw new Error('Wellness package enrolment is required')
+    }
+
+    let consumedCredit = false
+    try {
+      if (usePackageCredit && packageEnrolmentId) {
+        await WellnessPackageService.consumeSessionCredit({
+          enrolmentId: packageEnrolmentId,
+          bookingType: type,
+          userId,
+        })
+        consumedCredit = true
+      }
+
+      // Create the booking
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          user_id: userId,
+          type,
+          date,
+          time,
+          duration_minutes: typeConfig.duration_minutes,
+          price: usePackageCredit ? 0 : typeConfig.price,
+          status: 'scheduled',
+          notes: notes || null,
+          metadata,
+          package_enrolment_id: packageEnrolmentId,
+          is_package_booking: usePackageCredit,
+        })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error creating booking:', error)
+        throw new Error('Failed to create booking')
+      }
+
+      return data
+    } catch (err) {
+      if (consumedCredit && packageEnrolmentId) {
+        await WellnessPackageService.releaseSessionCredit({
+          enrolmentId: packageEnrolmentId,
+          bookingType: type,
+        })
+      }
+      throw err
+    }
   }
 
   /**
@@ -252,6 +299,13 @@ export class BookingService {
     if (error) {
       console.error('Error cancelling booking:', error)
       throw new Error('Failed to cancel booking')
+    }
+
+    if (booking.is_package_booking && booking.package_enrolment_id) {
+      await WellnessPackageService.releaseSessionCredit({
+        enrolmentId: booking.package_enrolment_id,
+        bookingType: booking.type,
+      })
     }
 
     return true

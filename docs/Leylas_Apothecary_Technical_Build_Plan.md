@@ -150,6 +150,7 @@ CREATE TABLE public.profiles (
     health_conditions JSONB,
     medications JSONB,
     allergies JSONB,
+    role TEXT CHECK (role IN ('client', 'practitioner', 'admin')) DEFAULT 'client',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -178,13 +179,42 @@ CREATE TABLE public.products (
 CREATE TABLE public.compounds (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id),
+    owner_user_id UUID REFERENCES auth.users(id),
     name TEXT NOT NULL,
     formula JSONB NOT NULL,
-    type TEXT CHECK (type IN ('preset', 'custom', 'practitioner')),
+    type TEXT CHECK (type IN ('preset', 'guided', 'practitioner')),
+    tier INTEGER CHECK (tier IN (1, 2, 3)) NOT NULL,
     price DECIMAL(10,2),
     notes TEXT,
     created_by UUID REFERENCES auth.users(id),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    source_assessment_id UUID REFERENCES public.assessments(id),
+    source_booking_id UUID REFERENCES public.bookings(id),
+    version INTEGER DEFAULT 1,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Compound batches (manufacturing events)
+CREATE TABLE public.compound_batches (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    compound_id UUID REFERENCES public.compounds(id) ON DELETE CASCADE,
+    batch_code TEXT NOT NULL,
+    prepared_by UUID REFERENCES auth.users(id),
+    prepared_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    total_volume_ml INTEGER NOT NULL,
+    expiry_date DATE,
+    notes TEXT,
+    status TEXT CHECK (status IN ('prepared', 'dispensed', 'discarded')) DEFAULT 'prepared'
+);
+
+-- Compound dispensations (link batch to orders/patients)
+CREATE TABLE public.compound_dispensations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    batch_id UUID REFERENCES public.compound_batches(id) ON DELETE CASCADE,
+    order_id UUID REFERENCES public.orders(id),
+    user_id UUID REFERENCES auth.users(id),
+    volume_ml INTEGER NOT NULL,
+    dispensed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Orders table
@@ -232,6 +262,29 @@ CREATE TABLE public.assessments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Pricing guardrails per tier
+CREATE TABLE public.compound_pricing_rules (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    tier INTEGER CHECK (tier IN (1,2,3)) UNIQUE NOT NULL,
+    min_price_per_100ml DECIMAL(10,2) NOT NULL,
+    max_price_per_100ml DECIMAL(10,2) NOT NULL,
+    default_margin DECIMAL(4,2) NOT NULL,
+    allow_manual_override BOOLEAN DEFAULT false,
+    override_role TEXT
+);
+
+-- Herb safety metadata stored centrally
+CREATE TABLE public.herb_safety_rules (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    herb_id UUID REFERENCES public.products(id),
+    contraindications JSONB,
+    interactions JSONB,
+    pregnancy_risk_level TEXT,
+    lactation_risk_level TEXT,
+    metadata JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
@@ -239,6 +292,10 @@ ALTER TABLE compounds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE compound_batches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE compound_dispensations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE compound_pricing_rules ENABLE ROW LEVEL SECURITY;
+ALTER TABLE herb_safety_rules ENABLE ROW LEVEL SECURITY;
 ```
 
 ### Project Structure
@@ -1018,6 +1075,28 @@ export function CompoundBuilder({ herbs, onSave }: CompoundBuilderProps) {
 }
 ```
 
+#### Tiered Builder Refactor
+- Replace the single `CompoundBuilder` export with three specialized components: `PresetBuilder`, `GuidedBuilder`, and `PractitionerBuilder`.  
+- `PresetBuilder` is a simplified read-only selector for Tier 1 signature blends; it simply lists existing `compounds` rows with `tier=1` and supports adding them to cart with locked ratios/prices.
+- `GuidedBuilder` consumes the latest `assessments` record with `type='guided_compound'`, preloads recommended herbs (including safe ratio bounds) and enforces questionnaire completion before enabling adjustments.
+- `PractitionerBuilder` sits behind the practitioner dashboard and pulls booking + assessment context so compounds created there always reference a consultation and client record.
+
+#### Guided Flow UX
+1. `/compounds/guided/questionnaire` renders a 5–7 minute wizard that captures health goals, medications, pregnancy/breastfeeding status, sensitivities, and taste preferences.
+2. Submitting the questionnaire hits `POST /api/assessments/guided-compound`, validates the responses, saves them in `assessments`, and runs a rules engine to populate `recommendations` with 3–5 herbs plus suggested ratios and safety notes.
+3. User is redirected to `/compounds/guided/builder?assessmentId=...` where the `GuidedBuilder` loads recommendations, applies slider limits (e.g., each herb has min/max %), and shows dynamic alerts/pregnancy badges sourced from `herb_safety_rules`.
+4. Upon save, the client POSTs to `/api/compounds` with `type='guided'`, `tier=2`, `source_assessment_id`, and the validated formula. The server re-runs `checkFormulaSafety` and `calculateCompoundPrice` before persisting.
+
+#### Practitioner Flow UX
+- Practitioner dashboards expose a card in each completed booking: “Create Practitioner Compound.” Clicking opens the builder at `/practitioner/compounds/[bookingId]` (only available to `profiles.role='practitioner'`).
+- The builder pre-fills client info, consult notes, and recent formulas. Practitioners can insert up to seven herbs, optionally pull from templates, and fine-tune ratios without the guided sliders’ tight bounds.
+- Saving creates or updates a compound row (`type='practitioner'`, `tier=3`, `source_booking_id`) and immediately prompts for batch creation. Batch metadata entry feeds directly into fulfillment labels and compliance reporting.
+
+#### Shared Safety & Pricing Modules
+- `checkFormulaSafety(herbs, userProfile, assessmentResponses)` sits in `lib/compounds/safety.ts`. It queries `herb_safety_rules` to flag pregnancy/lactation risks, medication conflicts, and herb-herb interactions. Returns structured warnings/errors consumed by the builders and API routes.
+- `calculateCompoundPrice(formula, tier, context)` sits in `lib/compounds/pricing.ts`. It computes raw ingredient cost, applies the configured `compound_pricing_rules.default_margin`, and clamps within the tier min/max. Overrides require elevated roles and store justification text.
+- Both helpers run client-side (for instant feedback) and again inside API handlers so server validation always matches UI hints.
+
 ---
 
 ## BACKEND SERVICES & APIs
@@ -1086,6 +1165,40 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(data)
 }
 ```
+
+#### Guided Assessment API (app/api/assessments/guided-compound/route.ts)
+- **POST** accepts the questionnaire payload plus optional `assessmentId` for edits.
+- Validates against a Zod schema (health goals, medications, pregnancy, sensitivities, taste preferences, desired outcomes). Rejects if user is unauthenticated.
+- Persists a new `assessments` record with `type='guided_compound'`, `responses`, and generated `recommendations`.
+- Recommendation logic lives in `/lib/compounds/recommendations.ts` and reads from curated rule JSON (`goal -> herb set`, `contraindications`, `min/max ratios`). Output format:
+  ```json
+  {
+    "primary_goal": "Sleep support",
+    "suggested_herbs": [
+      { "product_id": "...", "name": "Chamomile", "min": 20, "max": 40, "start": 30, "notes": "Calming nervine" }
+    ],
+    "warnings": [{ "code": "INTERACTION", "message": "Avoid with warfarin" }]
+  }
+  ```
+- Response returns the assessment ID plus normalized recommendations so the client can redirect into the guided builder.
+
+#### Compounds API Enhancements (app/api/compounds/route.ts)
+- **GET** gains filters for `tier`, `type`, `owner_user_id`, and optional `source_booking_id`.
+- **POST** now branches by tier:
+  - Tier 1 creation is admin/practitioner-only and expects complete formula + fixed price.
+  - Tier 2 requires `source_assessment_id`. Handler fetches assessment, re-runs `checkFormulaSafety`, enforces recommended herbs only (unless they appear in the guided whitelist), and computes the price via `calculateCompoundPrice`.
+  - Tier 3 requires `profiles.role='practitioner'` and a valid `source_booking_id`. Server ensures booking is completed and belongs to the same client.
+- Responses include the persisted `tier`, `version`, and `safety_status` metadata for downstream analytics.
+- **PATCH** introduces versioning: editing an existing practitioner compound automatically increments `version` unless `immutable` flag is set (Tier 1).
+
+#### Batch & Dispensation APIs
+- `/api/compound-batches` (POST/GET) restricts writes to practitioners. POST requires `compound_id`, `batch_code`, `prepared_by`, `total_volume_ml`, `expiry_date`. GET is paginated and filterable by `prepared_by` or `status`.
+- `/api/compound-dispensations` (POST) is used by the fulfillment job when orders containing Tier 3 compounds are processed. It deducts volume from the selected batch, creates the dispensation record, and flags the batch as `dispensed` when empty.
+
+#### Safety & Pricing Utilities
+- `lib/compounds/safety.ts` exports `checkFormulaSafety` and `aggregateWarnings`. It queries `herb_safety_rules`, caches frequently used entries, and returns severity-coded issues (info/warn/error) used both client and server side.
+- `lib/compounds/pricing.ts` exports `calculateCompoundPrice`, `clampPrice`, and `formatPriceBreakdown`. They ingest `compound_pricing_rules` to produce consistent totals across builders, carts, and orders.
+- `lib/compounds/gating.ts` holds helpers (`requireGuidedAssessment`, `requirePractitionerBooking`) used in route handlers and server components to prevent access unless questionnaires/consults exist within allowed time windows.
 
 #### Orders API (app/api/orders/route.ts)
 ```typescript

@@ -4,6 +4,9 @@ import { OrderConfirmationEmail } from '@/emails/order-confirmation'
 import { OrderStatusUpdateEmail } from '@/emails/order-status-update'
 import { BookingConfirmationEmail } from '@/emails/booking-confirmation'
 import { BookingStatusUpdateEmail } from '@/emails/booking-status-update'
+import { WellnessPackageWelcomeEmail } from '@/emails/wellness-package-welcome'
+import { OligoscanPreConsultEmail } from '@/emails/oligoscan-pre-consult'
+import type { SessionCreditLedger } from '@/lib/types/wellness-packages'
 
 type NewsletterWelcomeParams = {
   email: string
@@ -41,6 +44,21 @@ type OrderConfirmationParams = {
 type SendResult =
   | { status: 'sent'; id?: string | null }
   | { status: 'skipped'; reason: string }
+
+type WellnessPackageWelcomeParams = {
+  email: string
+  name?: string | null
+  packageName: string
+  durationWeeks?: number
+  credits: SessionCreditLedger
+}
+
+type OligoscanPreConsultParams = {
+  email: string
+  name?: string | null
+  appointmentDate: string
+  appointmentTime: string
+}
 
 const DEFAULT_FROM = "Leyla's Apothecary <hello@leylas-apothecary.com>"
 
@@ -199,6 +217,58 @@ export class EmailService {
       to: payload.email,
       subject: `Booking updated (${payload.type})`,
       react: BookingStatusUpdateEmail(payload),
+    })
+
+    if (error) throw new Error(error.message)
+    return { status: 'sent', id: data?.id ?? null }
+  }
+
+  static async sendOligoscanPreConsult(
+    payload: OligoscanPreConsultParams
+  ): Promise<SendResult> {
+    const resend = getResendClient()
+
+    if (!resend) {
+      console.warn('Resend API key missing, skipping Oligoscan pre-consult email')
+      return { status: 'skipped', reason: 'missing-api-key' }
+    }
+
+    const fromAddress =
+      process.env.RESEND_FROM_ADDRESS?.trim() || DEFAULT_FROM
+
+    const { data, error } = await resend.emails.send({
+      from: fromAddress,
+      to: payload.email,
+      subject: 'Your upcoming Oligoscan session',
+      react: OligoscanPreConsultEmail({
+        name: payload.name,
+        appointmentDate: payload.appointmentDate,
+        appointmentTime: payload.appointmentTime,
+      }),
+    })
+
+    if (error) throw new Error(error.message)
+    return { status: 'sent', id: data?.id ?? null }
+  }
+
+  static async sendWellnessPackageWelcome(
+    payload: WellnessPackageWelcomeParams
+  ): Promise<SendResult> {
+    const resend = getResendClient()
+
+    if (!resend) {
+      console.warn('Resend API key missing, skipping package welcome email')
+      return { status: 'skipped', reason: 'missing-api-key' }
+    }
+
+    const fromAddress =
+      process.env.RESEND_FROM_ADDRESS?.trim() || DEFAULT_FROM
+
+    const { data, error } = await resend.emails.send({
+      from: fromAddress,
+      to: payload.email,
+      subject: `Welcome to ${payload.packageName}`,
+      react: WellnessPackageWelcomeEmail(payload),
     })
 
     if (error) throw new Error(error.message)

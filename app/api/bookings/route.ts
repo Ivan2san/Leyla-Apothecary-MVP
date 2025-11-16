@@ -67,7 +67,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { type, date, time, notes } = validation.data
+    const {
+      type,
+      date,
+      time,
+      notes,
+      biometrics,
+      usePackageCredit,
+      packageEnrolmentId,
+    } = validation.data
 
     // Create the booking
     try {
@@ -76,11 +84,17 @@ export async function POST(request: NextRequest) {
         type,
         date,
         time,
-        notes
+        notes,
+        biometrics,
+        {
+          usePackageCredit,
+          packageEnrolmentId,
+        }
       )
 
+      let fullBooking = null
       if (user.email) {
-        const fullBooking = await BookingService.getBooking(booking.id)
+        fullBooking = await BookingService.getBooking(booking.id)
         if (fullBooking) {
           await EmailService.sendBookingConfirmation({
             email: user.email,
@@ -91,6 +105,15 @@ export async function POST(request: NextRequest) {
             duration: fullBooking.duration_minutes,
             notes: fullBooking.notes,
           })
+
+          if (type === 'oligoscan_assessment') {
+            await EmailService.sendOligoscanPreConsult({
+              email: user.email,
+              name: user.user_metadata?.full_name,
+              appointmentDate: fullBooking.date,
+              appointmentTime: fullBooking.time,
+            })
+          }
         }
       }
 
@@ -112,6 +135,16 @@ export async function POST(request: NextRequest) {
 
       if (bookingError.message === 'Invalid booking type') {
         return NextResponse.json({ error: 'Invalid booking type' }, { status: 400 })
+      }
+
+      if (
+        typeof bookingError.message === 'string' &&
+        bookingError.message.toLowerCase().includes('package')
+      ) {
+        return NextResponse.json(
+          { error: bookingError.message },
+          { status: 400 }
+        )
       }
 
       throw bookingError

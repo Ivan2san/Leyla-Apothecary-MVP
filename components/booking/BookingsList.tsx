@@ -144,9 +144,16 @@ export function BookingsList() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-forest">
-                        {booking.type_config?.name}
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-forest">
+                          {booking.type_config?.name}
+                        </CardTitle>
+                        {booking.is_package_booking && (
+                          <span className="rounded-full bg-terracotta/10 px-2 py-0.5 text-xs font-semibold text-terracotta">
+                            Package credit
+                          </span>
+                        )}
+                      </div>
                       <CardDescription className="text-forest/60">
                         {booking.type_config?.description}
                       </CardDescription>
@@ -178,7 +185,9 @@ export function BookingsList() {
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-sage" />
                       <span className="text-sm text-forest">
-                        ${booking.price.toFixed(2)}
+                        {booking.is_package_booking
+                          ? 'Included in package'
+                          : `$${booking.price.toFixed(2)}`}
                       </span>
                     </div>
                   </div>
@@ -234,9 +243,16 @@ export function BookingsList() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-forest">
-                        {booking.type_config?.name}
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-forest">
+                          {booking.type_config?.name}
+                        </CardTitle>
+                        {booking.is_package_booking && (
+                          <span className="rounded-full bg-terracotta/10 px-2 py-0.5 text-xs font-semibold text-terracotta">
+                            Package credit
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -264,7 +280,9 @@ export function BookingsList() {
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-sage" />
                       <span className="text-sm text-forest">
-                        ${booking.price.toFixed(2)}
+                        {booking.is_package_booking
+                          ? 'Included in package'
+                          : `$${booking.price.toFixed(2)}`}
                       </span>
                     </div>
                   </div>

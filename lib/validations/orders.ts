@@ -12,12 +12,24 @@ export const shippingAddressSchema = z.object({
   phone: z.string().min(1, 'Phone is required').max(20),
 })
 
-// Order item schema
-export const orderItemSchema = z.object({
+const productOrderItemSchema = z.object({
+  type: z.literal('product').optional(),
   productId: z.string().uuid('Invalid product ID'),
   quantity: z.number().int().positive('Quantity must be positive'),
-  price: z.number().positive('Price must be positive'), // Will be validated server-side
+  price: z.number().positive('Price must be positive'),
 })
+
+const compoundOrderItemSchema = z.object({
+  type: z.literal('compound'),
+  compoundId: z.string().uuid('Invalid compound ID'),
+  quantity: z.number().int().positive('Quantity must be positive'),
+  price: z.number().positive('Price must be positive'),
+})
+
+export const orderItemSchema = z.union([
+  productOrderItemSchema,
+  compoundOrderItemSchema,
+])
 
 // Create order request schema
 export const createOrderSchema = z.object({
@@ -35,3 +47,5 @@ export const createOrderSchema = z.object({
 export type CreateOrderInput = z.infer<typeof createOrderSchema>
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>
 export type OrderItem = z.infer<typeof orderItemSchema>
+export type ProductOrderItemInput = z.infer<typeof productOrderItemSchema>
+export type CompoundOrderItemInput = z.infer<typeof compoundOrderItemSchema>

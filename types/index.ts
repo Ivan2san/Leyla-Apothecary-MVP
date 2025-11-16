@@ -4,9 +4,12 @@ export interface Profile {
   email: string
   full_name: string
   phone?: string
+  role: ProfileRole
   created_at: string
   updated_at: string
 }
+
+export type ProfileRole = 'client' | 'practitioner' | 'admin'
 
 export type ProductImageType = 'primary' | 'lifestyle' | 'detail' | 'scale'
 
@@ -50,23 +53,104 @@ export type ProductCategory =
   | "skin"
   | "reproductive"
 
+export type CompoundTier = 1 | 2 | 3
+export type CompoundType = 'preset' | 'guided' | 'practitioner'
+export type CompoundStatus = 'draft' | 'active' | 'archived'
+
 export interface Compound {
   id: string
   name: string
-  user_id: string
-  tier: 1 | 2 | 3
-  ingredients: CompoundIngredient[]
-  total_price: number
-  status: "draft" | "active" | "archived"
+  owner_user_id: string
+  created_by: string
+  type: CompoundType
+  tier: CompoundTier
+  formula: CompoundHerbComponent[]
+  price: number
+  status: CompoundStatus
+  source_assessment_id?: string | null
+  source_booking_id?: string | null
+  version: number
   notes?: string
   created_at: string
   updated_at: string
 }
 
-export interface CompoundIngredient {
+export interface CompoundHerbComponent {
   product_id: string
   percentage: number
   product?: Product
+  min_percentage?: number
+  max_percentage?: number
+  metadata?: Record<string, any>
+}
+
+export interface CompoundBatch {
+  id: string
+  compound_id: string
+  batch_code: string
+  prepared_by: string
+  prepared_at: string
+  total_volume_ml: number
+  expiry_date?: string | null
+  notes?: string
+  status: 'prepared' | 'dispensed' | 'discarded'
+}
+
+export interface CompoundDispensation {
+  id: string
+  batch_id: string
+  order_id?: string | null
+  user_id: string
+  volume_ml: number
+  dispensed_at: string
+}
+
+export interface CompoundPricingRule {
+  id: string
+  tier: CompoundTier
+  min_price_per_100ml: number
+  max_price_per_100ml: number
+  default_margin: number
+  allow_manual_override: boolean
+  override_role?: ProfileRole | null
+}
+
+export interface HerbSafetyRule {
+  id: string
+  product_id: string
+  contraindications: any[] // Stored JSON data (e.g., [{code, message}])
+  interactions: any[]
+  pregnancy_risk_level?: string | null
+  lactation_risk_level?: string | null
+  metadata?: Record<string, any>
+  created_at: string
+}
+
+export interface Assessment {
+  id: string
+  user_id: string
+  type: string
+  responses: Record<string, any>
+  recommendations?: GuidedRecommendation | Record<string, any> | null
+  score?: number | null
+  created_at: string
+}
+
+export interface GuidedHerbSuggestion {
+  product_id: string | null
+  slug?: string | null
+  name: string
+  start_percentage: number
+  min_percentage: number
+  max_percentage: number
+  notes?: string | null
+}
+
+export interface GuidedRecommendation {
+  primary_goal: string
+  suggested_herbs: GuidedHerbSuggestion[]
+  warnings?: { code: string; message: string }[]
+  metadata?: Record<string, any>
 }
 
 export interface Order {
@@ -101,6 +185,16 @@ export interface OrderItem {
   price: number
   product?: Product
   compound?: Compound
+  compound_snapshot?: {
+    id: string
+    name: string
+    tier: CompoundTier
+    type: CompoundType
+    price: number
+    formula: CompoundHerbComponent[]
+    source_booking_id?: string | null
+    source_assessment_id?: string | null
+  }
 }
 
 export interface Booking {

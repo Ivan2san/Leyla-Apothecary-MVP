@@ -3,7 +3,39 @@
  * Types for consultation bookings, availability management, and scheduling
  */
 
-export type BookingType = 'initial' | 'followup' | 'quick'
+export type BookingType =
+  | 'initial'
+  | 'followup'
+  | 'quick'
+  | 'oligoscan_assessment'
+  | 'wellness_package_initial'
+  | 'meditation_session'
+  | 'sauna_session'
+  | 'dietary_session'
+
+export type OligoscanGender = 'female' | 'male' | 'other' | 'prefer_not_to_say'
+export type OligoscanBloodType =
+  | 'A+'
+  | 'A-'
+  | 'B+'
+  | 'B-'
+  | 'AB+'
+  | 'AB-'
+  | 'O+'
+  | 'O-'
+  | 'unknown'
+
+export interface OligoscanBiometrics {
+  dateOfBirth: string
+  gender: OligoscanGender
+  bloodType: OligoscanBloodType
+  heightCm: number
+  weightKg: number
+}
+
+export interface BookingMetadata {
+  biometrics?: OligoscanBiometrics
+}
 
 export type BookingStatus = 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'
 
@@ -13,6 +45,7 @@ export interface BookingTypeConfig {
   description: string | null
   duration_minutes: number
   price: number
+  is_package_only: boolean
   is_active: boolean
   created_at: string
   updated_at: string
@@ -31,6 +64,9 @@ export interface Booking {
   meeting_link: string | null
   payment_intent_id: string | null
   reminder_sent: boolean
+  metadata: BookingMetadata | null
+  package_enrolment_id: string | null
+  is_package_booking: boolean
   created_at: string
   updated_at: string
 }
