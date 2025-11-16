@@ -53,23 +53,58 @@ ALTER TABLE assessments
   ADD COLUMN IF NOT EXISTS type TEXT,
   ADD COLUMN IF NOT EXISTS score NUMERIC(5,2);
 
-UPDATE assessments
-SET type = COALESCE(type, 'intake');
+DO $$
+BEGIN
+  UPDATE assessments
+  SET type = COALESCE(type, 'intake');
 
-ALTER TABLE assessments
-  ALTER COLUMN type SET NOT NULL,
-  ALTER COLUMN type SET DEFAULT 'intake';
+  -- Only set NOT NULL if it isn't already
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'assessments'
+      AND column_name = 'type'
+      AND is_nullable = 'YES'
+  ) THEN
+    ALTER TABLE assessments
+      ALTER COLUMN type SET NOT NULL;
+  END IF;
 
-ALTER TABLE assessments
-  ALTER COLUMN recommendations TYPE JSONB
-  USING COALESCE(to_jsonb(recommendations), '[]'::jsonb);
+  -- Set default if not already set
+  ALTER TABLE assessments
+    ALTER COLUMN type SET DEFAULT 'intake';
 
-UPDATE assessments
-SET recommendations = COALESCE(recommendations, '[]'::jsonb);
+  -- Handle recommendations column type conversion if needed
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'assessments'
+      AND column_name = 'recommendations'
+      AND data_type != 'jsonb'
+  ) THEN
+    ALTER TABLE assessments
+      ALTER COLUMN recommendations TYPE JSONB
+      USING COALESCE(to_jsonb(recommendations), '[]'::jsonb);
+  END IF;
 
-ALTER TABLE assessments
-  ALTER COLUMN recommendations SET DEFAULT '[]'::jsonb,
-  ALTER COLUMN recommendations SET NOT NULL;
+  UPDATE assessments
+  SET recommendations = COALESCE(recommendations, '[]'::jsonb)
+  WHERE recommendations IS NULL;
+
+  ALTER TABLE assessments
+    ALTER COLUMN recommendations SET DEFAULT '[]'::jsonb;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'assessments'
+      AND column_name = 'recommendations'
+      AND is_nullable = 'YES'
+  ) THEN
+    ALTER TABLE assessments
+      ALTER COLUMN recommendations SET NOT NULL;
+  END IF;
+END $$;
 
 ALTER TABLE assessments ENABLE ROW LEVEL SECURITY;
 
@@ -132,20 +167,43 @@ ALTER TABLE compounds
   ADD COLUMN IF NOT EXISTS source_booking_id UUID REFERENCES bookings(id),
   ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
 
-UPDATE compounds
-SET created_by = COALESCE(created_by, owner_user_id);
+DO $$
+BEGIN
+  UPDATE compounds
+  SET created_by = COALESCE(created_by, owner_user_id)
+  WHERE created_by IS NULL;
 
-UPDATE compounds
-SET type = CASE tier
-  WHEN '1' THEN 'preset'
-  WHEN '2' THEN 'guided'
-  ELSE 'practitioner'
-END
-WHERE type IS NULL;
+  UPDATE compounds
+  SET type = CASE tier
+    WHEN '1' THEN 'preset'
+    WHEN '2' THEN 'guided'
+    ELSE 'practitioner'
+  END
+  WHERE type IS NULL;
 
-ALTER TABLE compounds
-  ALTER COLUMN created_by SET NOT NULL,
-  ALTER COLUMN type SET NOT NULL;
+  -- Only set NOT NULL if not already set
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'compounds'
+      AND column_name = 'created_by'
+      AND is_nullable = 'YES'
+  ) THEN
+    ALTER TABLE compounds
+      ALTER COLUMN created_by SET NOT NULL;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'compounds'
+      AND column_name = 'type'
+      AND is_nullable = 'YES'
+  ) THEN
+    ALTER TABLE compounds
+      ALTER COLUMN type SET NOT NULL;
+  END IF;
+END $$;
 
 DO $$
 BEGIN
@@ -159,9 +217,21 @@ BEGIN
   END IF;
 END $$;
 
-ALTER TABLE compounds
-  ALTER COLUMN tier TYPE INTEGER
-  USING (tier::text)::INTEGER;
+DO $$
+BEGIN
+  -- Only convert tier column type if it's not already INTEGER
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'compounds'
+      AND column_name = 'tier'
+      AND data_type != 'integer'
+  ) THEN
+    ALTER TABLE compounds
+      ALTER COLUMN tier TYPE INTEGER
+      USING (tier::text)::INTEGER;
+  END IF;
+END $$;
 
 DO $$
 BEGIN
@@ -178,10 +248,10 @@ END $$;
 DROP TYPE IF EXISTS compound_tier;
 
 DROP INDEX IF EXISTS idx_compounds_user_id;
-CREATE INDEX idx_compounds_owner_user_id ON compounds(owner_user_id);
-CREATE INDEX idx_compounds_type ON compounds(type);
-CREATE INDEX idx_compounds_source_assessment ON compounds(source_assessment_id);
-CREATE INDEX idx_compounds_source_booking ON compounds(source_booking_id);
+CREATE INDEX IF NOT EXISTS idx_compounds_owner_user_id ON compounds(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_compounds_type ON compounds(type);
+CREATE INDEX IF NOT EXISTS idx_compounds_source_assessment ON compounds(source_assessment_id);
+CREATE INDEX IF NOT EXISTS idx_compounds_source_booking ON compounds(source_booking_id);
 
 CREATE POLICY "Owners can view own compounds"
   ON compounds FOR SELECT
