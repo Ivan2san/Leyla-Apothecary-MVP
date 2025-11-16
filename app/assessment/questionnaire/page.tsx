@@ -13,6 +13,8 @@ import { bestPracticeQuestionsConfig, qualifyingQuestions, notesQuestion } from 
 import { wellnessAssessmentSchema } from '@/lib/validations/wellness-assessment'
 import type { WellnessAssessmentInput } from '@/lib/validations/wellness-assessment'
 
+export const dynamic = 'force-dynamic'
+
 const bestPracticeGroups = [
   bestPracticeQuestionsConfig.slice(0, 5),
   bestPracticeQuestionsConfig.slice(5, 10),
