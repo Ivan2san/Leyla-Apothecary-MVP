@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,8 +12,6 @@ import { QuestionCard } from '@/components/assessment/QuestionCard'
 import { bestPracticeQuestionsConfig, qualifyingQuestions, notesQuestion } from '@/lib/assessment/questions'
 import { wellnessAssessmentSchema } from '@/lib/validations/wellness-assessment'
 import type { WellnessAssessmentInput } from '@/lib/validations/wellness-assessment'
-
-export const dynamic = 'force-dynamic'
 
 const bestPracticeGroups = [
   bestPracticeQuestionsConfig.slice(0, 5),
@@ -60,7 +58,7 @@ const defaultValues: WellnessAssessmentInput = {
   utm_campaign: undefined,
 }
 
-export default function AssessmentQuestionnairePage() {
+function AssessmentQuestionnaireContent() {
   const router = useRouter()
   const params = useSearchParams()
   const [step, setStep] = useState(0)
@@ -309,5 +307,23 @@ export default function AssessmentQuestionnairePage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function AssessmentQuestionnairePage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-warm-white py-12">
+        <div className="mx-auto max-w-4xl space-y-8 px-6">
+          <div className="space-y-3 text-center">
+            <p className="text-sm uppercase tracking-[0.3em] text-terracotta">Leyla&apos;s Wellness Assessment</p>
+            <h1 className="font-lora text-4xl text-forest">Discover what your body is asking for</h1>
+            <p className="text-forest/70">Loading assessment...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AssessmentQuestionnaireContent />
+    </Suspense>
   )
 }
