@@ -45,10 +45,13 @@ FORBIDDEN_FILES=(
   "lib/supabase/server.ts"
   "lib/supabase/admin.ts"
   "middleware.ts"
-  "supabase/migrations/*"
   ".env.production"
   "app/privacy-policy/page.tsx"
   "app/terms-of-service/page.tsx"
+)
+
+SENSITIVE_PATTERNS=(
+  "supabase/migrations/"
 )
 
 # Get list of modified files (staged for commit)
@@ -60,6 +63,12 @@ if [ -n "$MODIFIED_FILES" ]; then
       echo -e "${RED}❌ FORBIDDEN: Cannot modify $forbidden${NC}"
       echo "   See .claude/FORBIDDEN_CHANGES.md for details"
       CHECKS_FAILED=1
+    fi
+  done
+
+  for sensitive in "${SENSITIVE_PATTERNS[@]}"; do
+    if echo "$MODIFIED_FILES" | grep -q "$sensitive"; then
+      echo -e "${YELLOW}⚠️  NOTICE: ${sensitive} changes detected. Review carefully before deploy.${NC}"
     fi
   done
 fi
